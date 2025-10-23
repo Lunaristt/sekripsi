@@ -17,7 +17,7 @@ class LaporanController extends Controller
         $akhir = Carbon::parse($bulan . '-01')->endOfMonth();
 
         // ✅ Ambil hanya penjualan dengan total harga lebih dari 0
-        $penjualan = \App\Models\Penjualan::with('pelanggan')
+        $penjualan = Penjualan::with('pelanggan')
             ->whereBetween('Tanggal', [$awal, $akhir])
             ->where('Status', 'Selesai')
             ->where('Harga_Keseluruhan', '>', 0)
