@@ -119,9 +119,9 @@ Route::prefix('pembelian')->name('pembelian.')->group(function () {
     Route::get('/create', [PembelianController::class, 'create'])->name('create');
     Route::post('/add-item', [PembelianController::class, 'addItem'])->name('addItem');
     Route::post('/checkout', [PembelianController::class, 'checkout'])->name('checkout');
-    Route::post('/cancel', [PembelianController::class, 'cancel'])->name('cancel');
-    Route::delete('/delete', [PembelianController::class, 'destroy'])->name('destroy');
-    Route::post('/batal/{id}', [PembelianController::class, 'batalPembelian'])->name('batal');
+    Route::post('/destroy', [PembelianController::class, 'destroy'])->name('destroy');
+    Route::get('/cancel', [PembelianController::class, 'cancel'])->name('cancel');
+    Route::post('/batal/{id}', [PembelianController::class, 'batalPembelian'])->name('batalPembelian');
 });
 
 

@@ -17,12 +17,6 @@ class Distributor extends Model
         'Notelp_Salesman',
     ];
 
-    // Relasi ke tabel Barang (satu distributor punya banyak barang)
-    public function barang()
-    {
-        return $this->hasMany(Barang::class, 'ID_Distributor', 'ID_Distributor');
-    }
-
     // Relasi ke tabel Pembelian (satu distributor punya banyak transaksi pembelian)
     public function pembelian()
     {

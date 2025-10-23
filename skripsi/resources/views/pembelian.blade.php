@@ -26,7 +26,7 @@
         @endif
 
         <!-- FORM PEMBELIAN -->
-        <form action="{{ route('pembelian.checkout') }}" method="POST" id="formPembelian">
+        <form action="{{ route('pembelian.addItem') }}" method="POST" id="formPembelian">
             @csrf
 
             <!-- Informasi Distributor -->
@@ -36,7 +36,12 @@
                     <select id="ID_Distributor" name="ID_Distributor" class="form-select bg-secondary-subtle border-0"
                         required>
                         <option value="">-- Pilih Distributor --</option>
-
+                        @foreach ($distributor as $d)
+                            <option value="{{ $d->ID_Distributor }}" data-telp="{{ $d->Notelp_Salesman }}"
+                                data-sales="{{ $d->Nama_Salesman }}">
+                                {{ $d->Nama_Distributor }}
+                            </option>
+                        @endforeach
                     </select>
                 </div>
 
@@ -67,9 +72,27 @@
                     </tr>
                 </thead>
                 <tbody id="daftarBarang">
-                    <tr>
-                        <td colspan="6" class="text-muted">Belum ada barang dalam transaksi</td>
-                    </tr>
+                    @forelse ($transaksi as $t)
+                        <tr>
+                            <td>{{ $t->barang->Nama_Barang }}</td>
+                            <td>{{ $t->barang->Deskripsi_Barang ?? '-' }}</td>
+                            <td>{{ $t->Jumlah_Pesanan }}</td>
+                            <td>Rp {{ number_format($t->barang->Harga_Barang, 0, ',', '.') }}</td>
+                            <td>Rp {{ number_format($t->Total_Harga, 0, ',', '.') }}</td>
+                            <td>
+                                <form action="{{ route('pembelian.destroy') }}" method="POST" class="d-inline">
+                                    @csrf
+                                    <input type="hidden" name="ID_Pembelian" value="{{ $t->ID_Pembelian }}">
+                                    <input type="hidden" name="ID_Barang" value="{{ $t->ID_Barang }}">
+                                    <button class="btn btn-danger btn-sm" type="submit">Hapus</button>
+                                </form>
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="6" class="text-muted text-center">Belum ada barang dalam transaksi</td>
+                        </tr>
+                    @endforelse
                 </tbody>
             </table>
 
@@ -79,24 +102,31 @@
                     <label for="ID_Barang" class="form-label fw-semibold">Pilih Barang</label>
                     <select id="ID_Barang" class="form-select bg-secondary-subtle border-0">
                         <option value="">-- Pilih Barang --</option>
-
+                        @foreach ($barang as $b)
+                            <option value="{{ $b->ID_Barang }}" data-harga="{{ $b->Harga_Barang }}"
+                                data-deskripsi="{{ $b->Deskripsi_Barang ?? '-' }}">
+                                {{ $b->Nama_Barang }}
+                            </option>
+                        @endforeach
                     </select>
                 </div>
 
                 <div class="col-md-3">
-                    <label for="Jumlah" class="form-label fw-semibold">Jumlah</label>
-                    <input type="number" id="Jumlah" min="1" class="form-control bg-secondary-subtle border-0"
+                    <label for="Jumlah_Pesanan" class="form-label fw-semibold">Jumlah</label>
+                    <input type="number" id="Jumlah_Pesanan" min="1" class="form-control bg-secondary-subtle border-0"
                         placeholder="Masukkan jumlah">
                 </div>
 
                 <div class="col-md-3">
-                    <button type="button" id="btnTambahBarang" class="btn btn-primary fw-semibold w-100">Tambah
-                        Barang</button>
+                    <button type="button" id="btnTambahBarang" class="btn btn-primary fw-semibold w-100">
+                        Tambah Barang
+                    </button>
                 </div>
             </div>
 
             <div class="text-end mt-4">
-                <h5 class="fw-bold">Total: <span id="totalHarga">Rp 0</span></h5>
+                <h5 class="fw-bold">Total: <span id="totalHarga">Rp
+                        {{ number_format($pembelian->Harga_Keseluruhan, 0, ',', '.') }}</span></h5>
             </div>
 
             <!-- Tombol Aksi -->
@@ -110,78 +140,62 @@
 
     <!-- SCRIPT -->
     <script>
+        // 🔹 Autofill data distributor
         const distributorSelect = document.getElementById('ID_Distributor');
         const telpSalesInput = document.getElementById('Notelp_Salesman');
         const namaSalesInput = document.getElementById('Nama_Salesman');
-        const barangSelect = document.getElementById('ID_Barang');
-        const daftarBarang = document.getElementById('daftarBarang');
-        const totalHargaDisplay = document.getElementById('totalHarga');
-        const formPembelian = document.getElementById('formPembelian');
-        let total = 0;
-
-        // 🔹 Autofill data dari distributor
         distributorSelect.addEventListener('change', function () {
-            const selected = this.options[this.selectedIndex];
-            telpSalesInput.value = selected.getAttribute('data-telp') || '';
-            namaSalesInput.value = selected.getAttribute('data-sales') || '';
+            const sel = this.options[this.selectedIndex];
+            telpSalesInput.value = sel.getAttribute('data-telp') || '';
+            namaSalesInput.value = sel.getAttribute('data-sales') || '';
         });
 
-        // 🔹 Tambah barang ke daftar
-        document.getElementById('btnTambahBarang').addEventListener('click', function () {
-            const selected = barangSelect.options[barangSelect.selectedIndex];
-            const id = selected.value;
-            const nama = selected.text;
-            const harga = parseFloat(selected.getAttribute('data-harga') || 0);
-            const deskripsi = selected.getAttribute('data-deskripsi') || '-';
-            const jumlah = parseInt(document.getElementById('Jumlah').value) || 0;
+        // 🔹 Tambah barang via AJAX
+        const barangSelect = document.getElementById('ID_Barang');
+        const jumlahInput = document.getElementById('Jumlah_Pesanan');
+        const daftarBarang = document.getElementById('daftarBarang');
+        const totalHargaDisplay = document.getElementById('totalHarga');
 
-            if (!id || jumlah <= 0) {
+        document.getElementById('btnTambahBarang').addEventListener('click', function () {
+            const idBarang = barangSelect.value;
+            const jumlah = parseInt(jumlahInput.value) || 0;
+
+            if (!idBarang || jumlah <= 0) {
                 alert('Pilih barang dan masukkan jumlah yang valid!');
                 return;
             }
 
-            const subtotal = harga * jumlah;
-            total += subtotal;
-            totalHargaDisplay.textContent = 'Rp ' + total.toLocaleString('id-ID');
-
-            if (daftarBarang.children[0].textContent.includes('Belum ada')) {
-                daftarBarang.innerHTML = '';
-            }
-
-            const row = document.createElement('tr');
-            row.innerHTML = `
-                <td>${nama}<input type="hidden" name="barang[]" value="${id}"></td>
-                <td>${deskripsi}</td>
-                <td>${jumlah}<input type="hidden" name="jumlah[]" value="${jumlah}"></td>
-                <td>Rp ${harga.toLocaleString('id-ID')}</td>
-                <td>Rp ${subtotal.toLocaleString('id-ID')}</td>
-                <td><button type="button" class="btn btn-danger btn-sm btnHapus">Hapus</button></td>
-            `;
-            daftarBarang.appendChild(row);
-            document.getElementById('Jumlah').value = '';
-        });
-
-        // 🔹 Hapus barang dari daftar
-        daftarBarang.addEventListener('click', function (e) {
-            if (e.target.classList.contains('btnHapus')) {
-                const row = e.target.closest('tr');
-                const subtotal = parseFloat(row.children[4].textContent.replace(/[^\d]/g, ''));
-                total -= subtotal;
-                totalHargaDisplay.textContent = 'Rp ' + total.toLocaleString('id-ID');
-                row.remove();
-
-                if (daftarBarang.children.length === 0) {
-                    daftarBarang.innerHTML = '<tr><td colspan="6" class="text-muted">Belum ada barang dalam transaksi</td></tr>';
-                }
-            }
-        });
-
-        // 🔹 Validasi sebelum submit
-        formPembelian.addEventListener('submit', function (e) {
-            if (daftarBarang.children[0].textContent.includes('Belum ada')) {
-                e.preventDefault();
-                alert('Tambahkan minimal satu barang sebelum menyelesaikan pembelian!');
-            }
+            fetch("{{ route('pembelian.addItem') }}", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRF-TOKEN": "{{ csrf_token() }}"
+                },
+                body: JSON.stringify({
+                    ID_Barang: idBarang,
+                    Jumlah_Pesanan: jumlah
+                })
+            })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                        <td>${data.barang}</td>
+                        <td>${data.deskripsi}</td>
+                        <td>${data.jumlah}</td>
+                        <td>Rp ${data.harga.toLocaleString('id-ID')}</td>
+                        <td>Rp ${data.total.toLocaleString('id-ID')}</td>
+                        <td><button class="btn btn-danger btn-sm btnHapus">Hapus</button></td>
+                    `;
+                        daftarBarang.appendChild(row);
+                        totalHargaDisplay.textContent = 'Rp ' + data.grandTotal.toLocaleString('id-ID');
+                        jumlahInput.value = '';
+                    } else {
+                        alert(data.message);
+                    }
+                })
+                .catch(err => alert('Terjadi kesalahan: ' + err.message));
         });
     </script>
 
