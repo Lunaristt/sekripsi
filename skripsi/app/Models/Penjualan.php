@@ -28,12 +28,12 @@ class Penjualan extends Model
 
     public function barangpenjualan()
     {
-        return $this->hasMany(\App\Models\BarangPenjualan::class, 'ID_Penjualan', 'ID_Penjualan');
+        return $this->hasMany(BarangPenjualan::class, 'ID_Penjualan', 'ID_Penjualan');
     }
 
     public function pelanggan()
     {
         // Relasi: satu penjualan dimiliki oleh satu pelanggan
-        return $this->belongsTo(\App\Models\Pelanggan::class, 'No_Telp', 'No_Telp');
+        return $this->belongsTo(Pelanggan::class, 'No_Telp', 'No_Telp');
     }
 }

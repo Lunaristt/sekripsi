@@ -29,26 +29,30 @@ class TransaksiController extends Controller
         $pelanggan = Pelanggan::orderBy('Nama_Pelanggan')->get();
 
         $penjualanId = session('penjualan_id');
+        $penjualan = null;
 
         if ($penjualanId) {
             $penjualan = Penjualan::find($penjualanId);
-
-            // Jika tidak ditemukan di DB, buat baru
-            if (!$penjualan) {
+            if (!$penjualan || $penjualan->Status !== 'Pending') {
                 $penjualan = Penjualan::create([
                     'Harga_Keseluruhan' => 0,
                     'Tanggal' => now(),
                     'Status' => 'Pending',
                 ]);
+                if (!$penjualan) {
+                    abort(500, 'Gagal membuat transaksi baru');
+                }
                 session(['penjualan_id' => $penjualan->ID_Penjualan]);
             }
         } else {
-            // Buat baru hanya kalau belum ada session aktif
             $penjualan = Penjualan::create([
                 'Harga_Keseluruhan' => 0,
                 'Tanggal' => now(),
                 'Status' => 'Pending',
             ]);
+            if (!$penjualan) {
+                abort(500, 'Gagal membuat transaksi baru');
+            }
             session(['penjualan_id' => $penjualan->ID_Penjualan]);
         }
 
@@ -58,6 +62,7 @@ class TransaksiController extends Controller
 
         return view('transaksi', compact('barang', 'penjualan', 'transaksi', 'pelanggan'));
     }
+
 
     /**
      * Tambahkan barang ke transaksi (sementara, belum mengurangi stok).
@@ -112,64 +117,81 @@ class TransaksiController extends Controller
      */
     public function checkout(Request $request)
     {
-        $penjualanId = session('penjualan_id');
-
-        if (!$penjualanId) {
-            return redirect()->back()->with('error', 'Tidak ada transaksi aktif!');
-        }
-
-        $jumlahItem = BarangPenjualan::where('ID_Penjualan', $penjualanId)->count();
-        if ($jumlahItem == 0) {
-            return redirect()->back()->with('error', 'Tidak bisa menyelesaikan transaksi tanpa barang!');
-        }
-
         if (!$request->Nama_Pelanggan || !$request->No_Telp) {
-            return redirect()->back()->with('error', 'Nama dan Nomor Telepon pelanggan wajib diisi!');
+            return response()->json([
+                'success' => false,
+                'message' => 'Nama dan Nomor Telepon pelanggan wajib diisi!'
+            ]);
+        }
+
+        if (empty($request->barang) || count($request->barang) == 0) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Tidak ada barang dalam transaksi!'
+            ]);
         }
 
         DB::beginTransaction();
         try {
-            // 🔍 Cek apakah pelanggan sudah ada
-            $pelanggan = Pelanggan::where('No_Telp', $request->No_Telp)
-                ->orWhere('Nama_Pelanggan', $request->Nama_Pelanggan)
-                ->first();
-
-            if (!$pelanggan) {
-                // 🧾 Jika belum ada → buat pelanggan baru otomatis
-                $pelanggan = Pelanggan::create([
+            // 🔹 Cek pelanggan atau buat baru
+            $pelanggan = Pelanggan::firstOrCreate(
+                ['No_Telp' => $request->No_Telp],
+                [
                     'Nama_Pelanggan' => $request->Nama_Pelanggan,
-                    'No_Telp' => $request->No_Telp,
-                    'Alamat' => $request->Alamat ?? '-',
+                    'Alamat' => $request->Alamat ?? '-'
+                ]
+            );
+
+            // 🔹 Ambil transaksi pending
+            $penjualan = Penjualan::where('Status', 'Pending')->latest('ID_Penjualan')->first();
+
+            if (!$penjualan) {
+                DB::rollBack();
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Tidak ada transaksi yang sedang berjalan!'
                 ]);
             }
 
-            // Update status transaksi
-            Penjualan::where('ID_Penjualan', $penjualanId)->update([
+            // 🔹 Update data transaksi
+            $penjualan->update([
                 'No_Telp' => $pelanggan->No_Telp,
                 'Status' => 'Selesai',
                 'Tanggal' => now(),
+                'Harga_Keseluruhan' => collect($request->barang)->sum('total'),
             ]);
 
-            // Kurangi stok barang
-            $details = BarangPenjualan::where('ID_Penjualan', $penjualanId)->get();
-            foreach ($details as $item) {
-                $barang = Barang::findOrFail($item->ID_Barang);
-                if ($barang->Stok_Barang < $item->Jumlah) {
+            // 🔹 Simpan barang-barang
+            foreach ($request->barang as $item) {
+                $barang = Barang::findOrFail($item['id']);
+                if ($barang->Stok_Barang < $item['jumlah']) {
                     DB::rollBack();
-                    return redirect()->back()->with('error', 'Stok ' . $barang->Nama_Barang . ' tidak mencukupi!');
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Stok ' . $barang->Nama_Barang . ' tidak mencukupi!'
+                    ]);
                 }
-                $barang->decrement('Stok_Barang', $item->Jumlah);
+
+                $barang->decrement('Stok_Barang', $item['jumlah']);
+                $penjualan->barang()->attach($barang->ID_Barang, [
+                    'Jumlah' => $item['jumlah'],
+                    'Total_Harga' => $item['total'],
+                ]);
             }
 
             DB::commit();
-            session()->forget('penjualan_id');
+            return response()->json([
+                'success' => true,
+                'message' => 'Transaksi berhasil disimpan!',
+                'penjualan_id' => $penjualan->ID_Penjualan
+            ]);
 
-            return redirect()->route('transaksi.create')->with('success', 'Transaksi selesai dan pelanggan tersimpan!');
         } catch (\Exception $e) {
             DB::rollBack();
-            return redirect()->back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
+            return response()->json(['success' => false, 'message' => 'Error: ' . $e->getMessage()]);
         }
     }
+
 
     /**
      * Tampilkan detail transaksi.
@@ -177,30 +199,29 @@ class TransaksiController extends Controller
     public function show($idPenjualan)
     {
         $penjualan = Penjualan::with('barang')->findOrFail($idPenjualan);
-        return view('transaksi.show', compact('penjualan'));
+        $pelanggan = Pelanggan::all();
+        $barang = Barang::all();
+        return view('transaksi', compact('penjualan', 'pelanggan', 'barang'));
     }
 
     /**
      * Hapus item dari transaksi.
      */
-    public function destroy(Request $request)
+    public function destroy($id_penjualan, $id_barang)
     {
-        $idPenjualan = $request->input('ID_Penjualan');
-        $idBarang = $request->input('ID_Barang');
+        $deleted = BarangPenjualan::where('ID_Penjualan', $id_penjualan)
+            ->where('ID_Barang', $id_barang)
+            ->delete();
 
-        $detail = BarangPenjualan::where('ID_Penjualan', $idPenjualan)
-            ->where('ID_Barang', $idBarang)
-            ->firstOrFail();
+        if ($deleted) {
+            return redirect()->route('transaksi.show', $id_penjualan)
+                ->with('success', 'Barang berhasil dihapus dari transaksi.');
+        }
 
-        $detail->delete();
-
-        // Recalculate total
-        $grandTotal = BarangPenjualan::where('ID_Penjualan', $idPenjualan)->sum('Total_Harga');
-        Penjualan::where('ID_Penjualan', $idPenjualan)
-            ->update(['Harga_Keseluruhan' => $grandTotal]);
-
-        return redirect()->back()->with('success', 'Barang berhasil dihapus!');
+        // return redirect()->back()->with('error', 'Barang gagal dihapus.');
     }
+
+
 
     /**
      * Batalkan transaksi (kembalikan stok & reset data).

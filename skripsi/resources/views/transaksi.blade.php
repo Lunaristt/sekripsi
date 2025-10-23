@@ -34,6 +34,7 @@
 </head>
 
 <body>
+
     @include('layouts.navbar')
     <div class="container-fluid">
         <div class="row">
@@ -48,6 +49,7 @@
                         <h6 class="fw-bold">Nama Pelanggan</h6>
                         <select id="namaPelanggan" class="form-control" style="width: 100%;">
                             <option value="">-- Pilih atau Ketik Pelanggan --</option>
+
                             @foreach($pelanggan as $plg)
                                 <option value="{{ $plg->Nama_Pelanggan }}" data-telp="{{ $plg->No_Telp }}"
                                     data-alamat="{{ $plg->Alamat }}">
@@ -87,16 +89,19 @@
                             <tr>
                                 <td>{{ $t->barang->Nama_Barang }}</td>
                                 <td>{{ $t->barang->Deskripsi_Barang }}</td>
-                                <td>{{ $t->Jumlah }}</td>
+                                <td>{{ $t->barang->Jumlah }}</td>
                                 <td>Rp {{ number_format($t->barang->Harga_Barang, 0, ',', '.') }}</td>
                                 <td>Rp {{ number_format($t->Total_Harga, 0, ',', '.') }}</td>
+
                                 <td>
-                                    <form action="{{ route('transaksi.destroy', $t->ID_Penjualan . '-' . $t->ID_Barang) }}"
-                                        method="POST" onsubmit="return confirm('Hapus {{ $t->barang->Nama_Barang }}?')">
+                                    <form
+                                        action="{{ route('transaksi.destroy', ['id_barang' => $t->ID_Barang, 'id_penjualan' => $penjualan->ID_Penjualan]) }}"
+                                        method="POST" onsubmit="return confirm('Hapus {{ $t->Nama_Barang }}?')">
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit" class="btn btn-danger btn-sm">Hapus</button>
                                     </form>
+
                                 </td>
                             </tr>
                         @empty
@@ -149,7 +154,7 @@
                         <input type="hidden" name="Nama_Pelanggan" id="checkoutNama">
                         <input type="hidden" name="No_Telp" id="checkoutTelp">
                         <input type="hidden" name="Alamat" id="checkoutAlamat">
-                        <button type="submit" class="btn btn-success" @if($transaksi->count() == 0) disabled @endif>
+                        <button type="submit" class="btn btn-success" @if($transaksi->count() == 0) @endif>
                             Selesaikan Pesanan
                         </button>
                     </form>
@@ -161,123 +166,179 @@
     {{-- ===================================================== --}}
     <script>
         $(document).ready(function () {
+
             // ====================================================
-            // 🔹 FITUR DROPDOWN SELECT2 UNTUK PELANGGAN
+            // 🔹 SETUP SELECT2 UNTUK PELANGGAN
             // ====================================================
             $('#namaPelanggan').select2({
                 placeholder: 'Ketik atau pilih pelanggan...',
-                tags: true, // bisa input pelanggan baru
+                tags: true,
                 allowClear: true,
                 width: '100%'
             });
 
-            // Autofill data pelanggan dari option yang dipilih
             $('#namaPelanggan').on('change', function () {
                 const selected = $(this).find(':selected');
-                const telp = selected.data('telp') || '';
-                const alamat = selected.data('alamat') || '';
-                $('#noTelp').val(telp);
-                $('#alamatPelanggan').val(alamat);
-            });
-
-            // Kirim data pelanggan saat checkout (pelanggan baru juga ikut tersimpan)
-            $('#checkoutForm').on('submit', function () {
-                $('#checkoutNama').val($('#namaPelanggan').val());
-                $('#checkoutTelp').val($('#noTelp').val());
-                $('#checkoutAlamat').val($('#alamatPelanggan').val());
+                $('#noTelp').val(selected.data('telp') || '');
+                $('#alamatPelanggan').val(selected.data('alamat') || '');
             });
 
             // ====================================================
-            // 🔹 FITUR TAMBAH BARANG DENGAN AJAX + SWEETALERT2
+            // 🔹 VARIABEL PENYIMPANAN VISUAL (KERANJANG)
             // ====================================================
-            const formAddItem = document.getElementById('formAddItem');
+            let keranjang = [];
 
-            formAddItem.addEventListener('submit', function (e) {
-                e.preventDefault(); // Cegah reload halaman
+            function renderTabel() {
+                const tbody = $('#listBarang');
+                tbody.empty();
 
-                const formData = new FormData(formAddItem);
+                if (keranjang.length === 0) {
+                    tbody.html('<tr><td colspan="6" class="text-center">Belum ada barang dalam transaksi</td></tr>');
+                } else {
+                    keranjang.forEach((item, i) => {
+                        tbody.append(`
+                        <tr>
+                            <td>${item.nama}</td>
+                            <td>-</td>
+                            <td>${item.jumlah}</td>
+                            <td>Rp ${item.harga.toLocaleString('id-ID')}</td>
+                            <td>Rp ${item.total.toLocaleString('id-ID')}</td>
+                            <td>
+                                <button class="btn btn-danger btn-sm" onclick="hapusBarang(${i})">Hapus</button>
+                            </td>
+                        </tr>
+                    `);
+                    });
+                }
 
-                fetch(formAddItem.action, {
-                    method: "POST",
+                // Update total
+                const total = keranjang.reduce((sum, item) => sum + item.total, 0);
+                $('#grandTotal').text('Total: Rp ' + total.toLocaleString('id-ID'));
+            }
+
+            // ====================================================
+            // 🔹 FUNGSI HAPUS BARANG
+            // ====================================================
+            window.hapusBarang = function (index) {
+                keranjang.splice(index, 1);
+                renderTabel();
+            }
+
+            // ====================================================
+            // 🔹 TAMBAH BARANG KE TABEL VISUAL (MERGE OTOMATIS)
+            // ====================================================
+            $('#formAddItem').on('submit', function (e) {
+                e.preventDefault();
+
+                const idBarang = $('#ID_Barang').val();
+                const namaBarang = $('#ID_Barang option:selected').text().split('-')[0].trim();
+                const hargaText = $('#ID_Barang option:selected').text().match(/\d[\d.]+/);
+                const harga = hargaText ? parseInt(hargaText[0].replace(/\./g, '')) : 0;
+                const jumlah = parseInt($('#Jumlah').val());
+
+                if (!idBarang || jumlah <= 0) {
+                    Swal.fire('Peringatan', 'Pilih barang dan masukkan jumlah yang valid.', 'warning');
+                    return;
+                }
+
+                // 🔍 Cek apakah barang sudah ada di keranjang
+                const existingItem = keranjang.find(item => item.id === idBarang);
+
+                if (existingItem) {
+                    // Jika sudah ada → tambahkan jumlah & total
+                    existingItem.jumlah += jumlah;
+                    existingItem.total = existingItem.harga * existingItem.jumlah;
+
+                    Swal.fire({
+                        icon: 'info',
+                        title: 'Jumlah barang diperbarui!',
+                        showConfirmButton: false,
+                        timer: 1000
+                    });
+                } else {
+                    // Jika belum ada → push item baru
+                    keranjang.push({
+                        id: idBarang,
+                        nama: namaBarang,
+                        jumlah: jumlah,
+                        harga: harga,
+                        total: harga * jumlah
+                    });
+
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Barang ditambahkan!',
+                        showConfirmButton: false,
+                        timer: 1000
+                    });
+                }
+
+                renderTabel();
+                this.reset();
+            });
+
+
+            // ====================================================
+            // 🔹 SAAT CHECKOUT -> KIRIM SEMUA DATA KE SERVER
+            // ====================================================
+            $('#checkoutForm').on('submit', function (e) {
+                e.preventDefault();
+
+                if (keranjang.length === 0) {
+                    Swal.fire('Kosong', 'Belum ada barang di transaksi.', 'warning');
+                    return;
+                }
+
+                const payload = {
+                    _token: $('input[name=_token]').val(),
+                    ID_Penjualan: {{ $penjualan->ID_Penjualan }},
+                    Nama_Pelanggan: $('#namaPelanggan').val(),
+                    No_Telp: $('#noTelp').val(),
+                    Alamat: $('#alamatPelanggan').val(),
+                    barang: keranjang
+                };
+
+
+                fetch("{{ route('transaksi.checkout') }}", {
+                    method: 'POST',
                     headers: {
-                        "X-CSRF-TOKEN": document.querySelector('input[name=_token]').value,
-                        "Accept": "application/json"
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': payload._token
                     },
-                    body: formData
+                    body: JSON.stringify(payload)
                 })
                     .then(res => res.json())
                     .then(data => {
-                        // Jika gagal (stok habis, tidak cukup, dsb)
-                        if (!data.success) {
+                        if (data.success) {
                             Swal.fire({
-                                icon: 'warning',
-                                title: 'Gagal Menambah Barang',
-                                text: data.message || 'Stok barang tidak mencukupi!',
-                                confirmButtonColor: '#d33'
+                                icon: 'success',
+                                title: 'Transaksi berhasil disimpan!',
+                                showConfirmButton: false,
+                                timer: 1500
+                            }).then(() => {
+                                window.location.href = '/transaksi'; // redirect ke halaman utama
                             });
-                            return;
+                        } else {
+                            Swal.fire('Gagal', data.message || 'Terjadi kesalahan.', 'error');
                         }
-
-                        // Jika sukses
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Barang berhasil ditambahkan!',
-                            showConfirmButton: false,
-                            timer: 1200
-                        });
-
-                        // Hapus baris kosong jika ada
-                        const emptyRow = document.getElementById('emptyRow');
-                        if (emptyRow) emptyRow.remove();
-
-                        // Tambahkan baris baru ke tabel transaksi
-                        const row = `
-                        <tr>
-                            <td>${data.barang}</td>
-                            <td>${data.deskripsi ?? '-'}</td>
-                            <td>${data.jumlah}</td>
-                            <td>Rp ${parseInt(data.harga).toLocaleString('id-ID')}</td>
-                            <td>Rp ${parseInt(data.total).toLocaleString('id-ID')}</td>
-                            <td>
-                                <form method="POST" action="/transaksi/${data.id}" onsubmit="return confirm('Hapus barang ini?')">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="btn btn-danger btn-sm">Hapus</button>
-                                </form>
-                            </td>
-                        </tr>
-                    `;
-                        document.querySelector('#listBarang').insertAdjacentHTML('beforeend', row);
-
-                        // Update total keseluruhan
-                        document.getElementById('grandTotal').innerText =
-                            'Total: Rp ' + parseInt(data.grandTotal).toLocaleString('id-ID');
-
-                        // Aktifkan tombol checkout
-                        document.querySelector('#checkoutForm button[type=submit]').disabled = false;
-
-                        // Reset form input barang
-                        formAddItem.reset();
                     })
                     .catch(err => {
                         console.error(err);
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Kesalahan Server',
-                            text: 'Terjadi kesalahan pada server. Silakan coba lagi.',
-                            confirmButtonColor: '#d33'
-                        });
+                        Swal.fire('Error', 'Terjadi kesalahan pada server.', 'error');
                     });
             });
 
             // ====================================================
-            // 🔹 CEGAH ENTER SUBMIT FORM (AGAR FETCH TIDAK SKIP)
+            // 🔹 CEGAH ENTER AUTO SUBMIT
             // ====================================================
             $('#Jumlah').on('keydown', function (e) {
                 if (e.key === 'Enter') e.preventDefault();
             });
+
+            renderTabel();
         });
     </script>
+
 
 
 </body>

@@ -12,6 +12,8 @@ use App\Http\Controllers\PembelianController;
 use App\Http\Controllers\LaporanController;
 use App\Http\Controllers\PajakController;
 
+use App\Http\Controllers\DashboardController;
+
 Route::get('/', [AuthController::class, 'showLogin'])->name('login');
 Route::post('/', [AuthController::class, 'login'])->name('login.process');
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
@@ -35,12 +37,14 @@ Route::prefix('barang')->name('barang.')->group(function () {
 
 });
 
+Route::prefix('dashboard')->group(function () {
+    Route::get('/', function () {
+        return view('dashboard'); // tampilkan halaman
+    })->name('dashboard');
 
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->name('dashboard');
+    Route::get('/data', [DashboardController::class, 'dashboardData'])->name('dashboard.data');
+});
 
-Route::get('/api/dashboard-omzet', [PajakController::class, 'dashboardData']);
 
 Route::prefix('pelanggan')->name('pelanggan.')->group(function () {
     Route::get('/', [PelangganController::class, 'index'])->name('index');
@@ -64,7 +68,7 @@ Route::get('tambahkategori', function () {
     return view('tambahmasterdata/tambahkategori'); // blade form kamu
 })->name('tambahkategori');
 
-Route::get('/pajak', [PajakController::class, 'index'])->name('pajak');
+Route::get('pajak', [PajakController::class, 'index'])->name('pajak');
 
 Route::get('/tambahsatuan', function () {
     return view('tambahmasterdata/tambahsatuan');
@@ -91,25 +95,13 @@ Route::prefix('tambahbarang')->name('tambahbarang.')->group(function () {
 });
 
 Route::prefix('transaksi')->name('transaksi.')->group(function () {
-    //Tampilkan daftar transaksi (riwayat)
-    Route::get('/', [TransaksiController::class, 'index'])->name('index');
-
-    //Buat transaksi baru (halaman kasir)
+    // Route::get('/', [TransaksiController::class, 'index'])->name('index');
     Route::get('/', [TransaksiController::class, 'create'])->name('create');
-
-    //Tambah barang ke transaksi
     Route::post('/items', [TransaksiController::class, 'addItem'])->name('addItem');
-
-    //Checkout transaksi & kurangi stok barang
     Route::post('/checkout', [TransaksiController::class, 'checkout'])->name('checkout');
-
-    //Batalkan transaksi & kembalikan stok
     Route::post('/cancel', [TransaksiController::class, 'cancel'])->name('cancel');
-
-    //Hapus item tertentu dalam transaksi
-    Route::delete('/{id}', [TransaksiController::class, 'destroy'])->name('destroy');
-
-    //route baru untuk tombol "Batal"
+    Route::delete('/{id_penjualan}/{id_barang}', [TransaksiController::class, 'destroy'])->name('destroy');
+    Route::get('/show/{id_penjualan}', [TransaksiController::class, 'show'])->name('show');
     Route::post('/{id}/batal', [TransaksiController::class, 'batalTransaksi'])->name('batal');
 });
 
