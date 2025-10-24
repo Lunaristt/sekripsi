@@ -18,22 +18,58 @@
   <div class="col-md-10 content">
     <div class="d-flex justify-content-between align-items-center mb-4">
       <!-- Form Search -->
-      <form action="{{ route('barang.index') }}" method="GET" class="d-flex flex-grow-1">
+      <form action="{{ route('barang.index') }}" method="GET" class="d-flex flex-grow-1 me-2">
         <input type="text" name="search" class="form-control me-2" placeholder="Cari barang..."
           value="{{ request('search') }}">
         <button type="submit" class="btn btn-primary">Cari</button>
       </form>
 
       <!-- Tombol Tambah Barang -->
-      <a href="{{ route('tambahbarang.create') }}" class="btn btn-add-item ms-2">Tambah Barang Baru</a>
+      <a href="{{ route('tambahbarang.create') }}" class="btn btn-success">Tambah Barang Baru</a>
+
+      <!-- Dropdown Sort -->
+      <div class="dropdown ms-2">
+        <button class="btn btn-info dropdown-toggle" type="button" id="sortDropdown" data-bs-toggle="dropdown"
+          aria-expanded="false">
+          Urutkan
+        </button>
+        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="sortDropdown">
+          <li>
+            <a class="dropdown-item"
+              href="{{ route('barang.index', array_merge(request()->query(), ['sort' => 'Nama_Barang', 'direction' => ($sort === 'Nama_Barang' && $direction === 'asc') ? 'desc' : 'asc'])) }}">
+              Nama Barang
+              @if($sort === 'Nama_Barang')
+                {{ $direction === 'asc' ? '⬇️ A–Z' : '⬆️ Z–A' }}
+              @endif
+            </a>
+          </li>
+          <li>
+            <a class="dropdown-item"
+              href="{{ route('barang.index', array_merge(request()->query(), ['sort' => 'Merek_Barang', 'direction' => ($sort === 'Merek_Barang' && $direction === 'asc') ? 'desc' : 'asc'])) }}">
+              Merek Barang
+              @if($sort === 'Merek_Barang')
+                {{ $direction === 'asc' ? '⬇️ A–Z' : '⬆️ Z–A' }}
+              @endif
+            </a>
+          </li>
+        </ul>
+      </div>
     </div>
 
     <!-- Tabel Barang -->
     <table class="table table-hover align-middle">
-      <thead>
+      <thead class="table-secondary">
         <tr>
-          <th>Nama Barang</th>
-          <th>Merek Barang</th>
+          <th>Nama Barang
+            @if($sort === 'Nama_Barang')
+              {!! $direction === 'asc' ? '⬇️' : '⬆️' !!}
+            @endif
+          </th>
+          <th>Merek Barang
+            @if($sort === 'Merek_Barang')
+              {!! $direction === 'asc' ? '⬇️' : '⬆️' !!}
+            @endif
+          </th>
           <th>Berat/Ukuran</th>
           <th>Deskripsi</th>
           <th>Harga</th>

@@ -3,50 +3,56 @@
 namespace App\Imports;
 
 use App\Models\Barang;
-use App\Models\KategoriBarang;
-use App\Models\SatuanBarang;
+use App\Models\kategoribarang;
+use App\Models\satuanbarang;
+use Illuminate\Support\Facades\Log;
 use Maatwebsite\Excel\Concerns\ToModel;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
 
 class BarangImport implements ToModel, WithHeadingRow
 {
+    /**
+     * Membaca setiap baris dari file Excel dan simpan ke tabel barang.
+     */
     public function model(array $row)
     {
-        // Cek kolom wajib
-        if (empty($row['nama_barang']) || empty($row['kategori_barang']) || empty($row['nama_satuan'])) {
-            return null;
+        // Validasi: pastikan kolom utama ada
+        if (
+            !isset($row['nama_barang']) ||
+            !isset($row['kategori_barang']) ||
+            !isset($row['merek_barang'])
+        ) {
+            return null; // skip baris tidak valid
         }
 
-        // Cari ID Kategori berdasarkan nama kategori
-        $kategori = KategoriBarang::where('Kategori_Barang', 'like', $row['kategori_barang'])->first();
+        // 🔹 Cek atau buat kategori (berdasarkan nama kategori)
+        $kategori = kategoribarang::firstOrCreate([
+            'Kategori_Barang' => $row['kategori_barang'],
+        ]);
 
-        // Kalau kategori belum ada → tambahkan otomatis
-        if (!$kategori) {
-            $kategori = KategoriBarang::create([
-                'Kategori_Barang' => ucfirst($row['kategori_barang']),
-            ]);
-        }
+        // 🔹 Cek atau buat satuan (berdasarkan nama satuan)
+        $satuan = satuanbarang::firstOrCreate([
+            'Nama_Satuan' => $row['nama_satauan'] ?? '-', // typo: sesuai header Excel "Nama Satauan"
+        ]);
 
-        // Cari ID Satuan berdasarkan nama satuan
-        $satuan = SatuanBarang::where('Nama_Satuan', 'like', $row['nama_satuan'])->first();
-
-        // Kalau satuan belum ada → tambahkan otomatis
-        if (!$satuan) {
-            $satuan = SatuanBarang::create([
-                'Nama_Satuan' => ucfirst($row['nama_satuan']),
-            ]);
-        }
-
-        // Simpan ke tabel Barang
+        // 🔹 Buat objek Barang baru
         return new Barang([
-            'Nama_Barang' => $row['nama_barang'],
             'ID_Kategori' => $kategori->ID_Kategori,
-            'Merek_Barang' => $row['merek_barang'] ?? null,
+            'ID_Satuan' => $satuan->ID_Satuan,
+            'Nama_Barang' => $row['nama_barang'],
+            'Merek_Barang' => $row['merek_barang'],
             'Harga_Barang' => $row['harga_barang'] ?? 0,
             'Stok_Barang' => $row['stok_barang'] ?? 0,
-            'Besar_Satuan' => $row['besar_satuan'] ?? 0,
-            'ID_Satuan' => $satuan->ID_Satuan,
+            'Besar_Satuan' => $row['besar_satuan'] ?? null,
             'Deskripsi_Barang' => $row['deskripsi_barang'] ?? null,
         ]);
+    }
+
+    /**
+     * Membuat heading Excel case-insensitive (optional tapi direkomendasikan)
+     */
+    public function headingRow(): int
+    {
+        return 1;
     }
 }

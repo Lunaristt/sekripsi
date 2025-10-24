@@ -33,7 +33,7 @@ Route::prefix('barang')->name('barang.')->group(function () {
     Route::delete('/{id}', [BarangController::class, 'destroy'])->name('destroy');
     Route::post('/tambahkategori', [BarangController::class, 'kategori'])->name('tambahkategori');
     Route::post('/tambahsatuan', [BarangController::class, 'satuan'])->name('tambahsatuan');
-    Route::post('import', [BarangController::class, 'import'])->name('import');
+    Route::post('/import', [BarangController::class, 'import'])->name('import');
 
 });
 

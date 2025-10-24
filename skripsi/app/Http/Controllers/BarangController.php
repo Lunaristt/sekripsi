@@ -16,22 +16,38 @@ class BarangController extends Controller
      */
     public function index(Request $request)
     {
-        $query = Barang::query();
+        $query = Barang::with('satuanbarang'); // tidak perlu kategoribarang lagi
 
-        // Fitur Search
-        if ($request->has('search')) {
-            $query->where('Nama_Barang', 'like', '%' . $request->search . '%')
-                ->orWhereHas('kategoribarang', function ($q) use ($request) {
-                    $q->where('Kategori_Barang', 'like', '%' . $request->search . '%');
-                });
+        // 🔍 Fitur Search — cari berdasarkan nama, merek, dan deskripsi
+        if ($request->has('search') && !empty($request->search)) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('Nama_Barang', 'like', '%' . $search . '%')
+                    ->orWhere('Merek_Barang', 'like', '%' . $search . '%')
+                    ->orWhere('Deskripsi_Barang', 'like', '%' . $search . '%');
+            });
         }
 
+        // 🔽 Fitur Sort
+        $sort = $request->get('sort', 'Nama_Barang'); // default: Nama_Barang
+        $direction = $request->get('direction', 'asc'); // default: asc
+
+        // Jika sort berdasarkan Merek_Barang, urutkan langsung kolomnya
+        if ($sort === 'Merek_Barang') {
+            $query->orderBy('Merek_Barang', $direction);
+        } else {
+            $query->orderBy($sort, $direction);
+        }
+
+        // 🔹 Ambil data
         $barang = $query->get();
-        $kategoribarang = kategoribarang::all();
         $satuanbarang = satuanbarang::all();
 
-        return view('barang/barang', compact('barang', 'kategoribarang', 'satuanbarang'));
+        return view('barang.barang', compact('barang', 'satuanbarang', 'sort', 'direction'));
     }
+
+
+
 
     /**
      * Tampilkan form tambah barang.
@@ -184,11 +200,15 @@ class BarangController extends Controller
     public function import(Request $request)
     {
         $request->validate([
-            'file' => 'required|mimes:xlsx,xls'
+            'file' => 'required|mimes:xlsx,xls,csv'
         ]);
 
-        Excel::import(new BarangImport, $request->file('file'));
-
-        return redirect()->back()->with('success', 'Data barang berhasil diimport!');
+        try {
+            Excel::import(new BarangImport, $request->file('file'));
+            return redirect()->back()->with('success', 'Data barang berhasil diimport!');
+        } catch (\Throwable $e) {
+            return redirect()->back()->with('error', 'Gagal import: ' . $e->getMessage());
+        }
     }
+
 }
