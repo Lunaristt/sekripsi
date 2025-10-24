@@ -79,7 +79,7 @@ Route::get('/tambahpelanggan', function () {
 })->name('tambahpelanggan');
 
 Route::get('/tambahdistributor', function () {
-    return view('tambahdistributor');
+    return view('distributor/tambahdistributor');
 })->name('tambahdistributor');
 
 Route::get('/home', function () {
@@ -106,8 +106,8 @@ Route::prefix('transaksi')->name('transaksi.')->group(function () {
 });
 
 Route::prefix('distributor')->name('distributor.')->group(function () {
-    Route::get('/', [DistributorController::class, 'index'])->name('index');
-    Route::get('/', [DistributorController::class, 'create'])->name('create');
+    Route::get('/index', [DistributorController::class, 'index'])->name('index');
+    Route::get('/create', [DistributorController::class, 'create'])->name('create');
     Route::post('/store', [DistributorController::class, 'store'])->name('store');
     Route::get('/edit/{id}', [DistributorController::class, 'edit'])->name('edit');
     Route::post('/update/{id}', [DistributorController::class, 'update'])->name('update');
@@ -115,7 +115,7 @@ Route::prefix('distributor')->name('distributor.')->group(function () {
 });
 
 Route::prefix('pembelian')->name('pembelian.')->group(function () {
-    Route::get('/', [PembelianController::class, 'index'])->name('index');
+    Route::get('/index', [PembelianController::class, 'index'])->name('index');
     Route::get('/create', [PembelianController::class, 'create'])->name('create');
     Route::post('/add-item', [PembelianController::class, 'addItem'])->name('addItem');
     Route::post('/checkout', [PembelianController::class, 'checkout'])->name('checkout');
@@ -129,6 +129,9 @@ Route::get('/pembelian', function () {
     return view('pembelian');
 })->name('pembelian');
 
+Route::get('/distributor', function () {
+    return view('distributor/distributor');
+})->name('distributor');
 
 Route::prefix('laporan')->name('laporan.')->group(function () {
     Route::get('/pengeluaran', [LaporanController::class, 'pengeluaran'])->name('pengeluaran');
