@@ -8,10 +8,9 @@ use App\Http\Controllers\RegisController;
 use App\Http\Controllers\PelangganController;
 use App\Http\Controllers\PenjualanController;
 use App\Http\Controllers\DistributorController;
-use App\Http\Controllers\PembelianController;
 use App\Http\Controllers\LaporanController;
 use App\Http\Controllers\PajakController;
-
+use App\Http\Controllers\PembelianController;
 use App\Http\Controllers\DashboardController;
 
 Route::get('/', [AuthController::class, 'showLogin'])->name('login');
@@ -114,14 +113,13 @@ Route::prefix('distributor')->name('distributor.')->group(function () {
     Route::delete('/delete/{id}', [DistributorController::class, 'destroy'])->name('destroy');
 });
 
-Route::prefix('pembelian')->name('pembelian.')->group(function () {
-    Route::get('/index', [PembelianController::class, 'index'])->name('index');
-    Route::get('/create', [PembelianController::class, 'create'])->name('create');
-    Route::post('/add-item', [PembelianController::class, 'addItem'])->name('addItem');
-    Route::post('/checkout', [PembelianController::class, 'checkout'])->name('checkout');
-    Route::post('/destroy', [PembelianController::class, 'destroy'])->name('destroy');
-    Route::get('/cancel', [PembelianController::class, 'cancel'])->name('cancel');
-    Route::post('/batal/{id}', [PembelianController::class, 'batalPembelian'])->name('batalPembelian');
+Route::prefix('pembelian')->group(function () {
+    Route::get('/', [PembelianController::class, 'index'])->name('pembelian.index');
+    Route::get('/create', [PembelianController::class, 'create'])->name('pembelian.create');
+    Route::post('/add-item', [PembelianController::class, 'addItem'])->name('pembelian.addItem');
+    Route::delete('/remove-item/{id}', [PembelianController::class, 'removeItem'])->name('pembelian.removeItem');
+    Route::post('/cancel', [PembelianController::class, 'cancel'])->name('pembelian.cancel');
+    Route::post('/checkout', [PembelianController::class, 'checkout'])->name('pembelian.checkout');
 });
 
 

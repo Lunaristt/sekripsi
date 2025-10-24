@@ -2,18 +2,19 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 
 class BarangPembelian extends Model
 {
     use HasFactory;
 
     protected $table = 'barangpembelian';
-    public $incrementing = false; // karena primary key gabungan
+    public $incrementing = false; // karena composite primary key
     public $timestamps = false;
 
-    protected $primaryKey = null; // composite key, tidak pakai single PK
+    protected $primaryKey = null;
+
     protected $fillable = [
         'ID_Pembelian',
         'ID_Barang',
