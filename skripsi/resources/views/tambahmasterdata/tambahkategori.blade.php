@@ -34,7 +34,7 @@
                     <div class="row">
                         <div class="mb-3">
                             <label class="form-label">Nama Kategori Barang</label>
-                            <input type="text" class="form-control" name="Nama_Kategori"
+                            <input type="text" class="form-control" name="Kategori_Barang"
                                 placeholder="Masukkan Nama Kategori Barang." required>
                         </div>
                     </div>

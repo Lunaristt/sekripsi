@@ -28,13 +28,13 @@
 
             <!-- Content -->
             <div class="col-md-10 p-4">
-                <h4 class="mb-4">Tambah Kategori</h4>
-                <form action="{{ route('barang.tambahkategori') }}" method="POST">
+                <h4 class="mb-4">Tambah Satuan</h4>
+                <form action="{{ route('barang.tambahsatuan') }}" method="POST">
                     @csrf
                     <div class="row">
                         <div class="mb-3">
                             <label class="form-label">Nama Satuan Barang</label>
-                            <input type="text" class="form-control" name="Nama_Kategori"
+                            <input type="text" class="form-control" name="Nama_Satuan"
                                 placeholder="Masukkan Nama Satuan Baru." required>
                         </div>
                     </div>
