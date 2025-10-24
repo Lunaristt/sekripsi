@@ -31,8 +31,8 @@ Route::prefix('barang')->name('barang.')->group(function () {
     Route::put('/barang/{id}', [BarangController::class, 'update'])->name('update');
     Route::post('/barang/{id}/tambah-stok', [BarangController::class, 'tambahStok'])->name('tambahStok');
     Route::delete('/{id}', [BarangController::class, 'destroy'])->name('destroy');
-    Route::post('/kategori/store', [BarangController::class, 'kategori'])->name('tambahkategori');
-    Route::post('/satuan/store', [BarangController::class, 'satuan'])->name('tambahsatuan');
+    Route::post('/tambahkategori', [BarangController::class, 'kategori'])->name('tambahkategori');
+    Route::post('/tambahsatuan', [BarangController::class, 'satuan'])->name('tambahsatuan');
     Route::post('import', [BarangController::class, 'import'])->name('import');
 
 });
