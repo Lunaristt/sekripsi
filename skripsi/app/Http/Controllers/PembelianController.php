@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Barang;
-use App\Models\BarangPembelian;
 use App\Models\Pembelian;
+use App\Models\BarangPembelian;
+use App\Models\Barang;
 use App\Models\Distributor;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -12,19 +12,19 @@ use Illuminate\Support\Facades\DB;
 class PembelianController extends Controller
 {
     /**
-     * Menampilkan daftar semua transaksi pembelian.
+     * Tampilkan daftar pembelian
      */
     public function index()
     {
-        $pembelian = Pembelian::with('barang', 'distributor')
+        $pembelian = Pembelian::with('distributor', 'barang')
             ->orderBy('Tanggal', 'desc')
             ->get();
 
-        return view('pembelian.index', compact('pembelian'));
+        return view('pembelian', compact('pembelian'));
     }
 
     /**
-     * Membuat transaksi pembelian baru atau melanjutkan yang pending.
+     * Form pembelian baru / melanjutkan pembelian pending
      */
     public function create()
     {
@@ -37,188 +37,140 @@ class PembelianController extends Controller
         if ($pembelianId) {
             $pembelian = Pembelian::find($pembelianId);
 
-            // Jika tidak ditemukan (misal sudah dihapus)
+            // Jika pembelian sudah dihapus atau tidak ditemukan → buat baru
             if (!$pembelian) {
                 $pembelian = Pembelian::create([
-                    'Harga_Keseluruhan' => 0,
                     'Tanggal' => now(),
-                    'Status' => 'Pending',
+                    'Tanggal_Jatuh_Tempo' => now()->addDays(60), // ✅ jatuh tempo 60 hari ke depan
+                    'Harga_Keseluruhan' => 0,
                 ]);
                 session(['pembelian_id' => $pembelian->ID_Pembelian]);
             }
         } else {
             // Buat pembelian baru
             $pembelian = Pembelian::create([
-                'Harga_Keseluruhan' => 0,
                 'Tanggal' => now(),
-                'Status' => 'Pending',
+                'Tanggal_Jatuh_Tempo' => now()->addDays(60), // ✅ jatuh tempo 60 hari ke depan
+                'Harga_Keseluruhan' => 0,
             ]);
             session(['pembelian_id' => $pembelian->ID_Pembelian]);
         }
 
-        $transaksi = BarangPembelian::with('barang')
-            ->where('ID_Pembelian', $pembelian->ID_Pembelian)
+        // Ambil daftar barang yang sudah dimasukkan
+        $barangPembelian = BarangPembelian::where('ID_Pembelian', $pembelian->ID_Pembelian)
+            ->with('barang')
             ->get();
 
-        return view('pembelian.create', compact('barang', 'pembelian', 'transaksi', 'distributor'));
+        $totalHarga = $barangPembelian->sum(fn($bp) => $bp->Jumlah * $bp->Harga_Beli);
+
+        return view('pembelian', compact('barang', 'distributor', 'pembelian', 'barangPembelian', 'totalHarga'));
     }
 
     /**
-     * Tambahkan barang ke dalam pembelian (sementara).
+     * Tambah barang ke pembelian
      */
     public function addItem(Request $request)
     {
         $request->validate([
             'ID_Barang' => 'required|exists:barang,ID_Barang',
-            'Jumlah_Pesanan' => 'required|integer|min:1',
+            'Jumlah' => 'required|integer|min:1',
         ]);
 
         $pembelianId = session('pembelian_id');
-
-        if (!$pembelianId) {
-            return response()->json(['success' => false, 'message' => 'Tidak ada transaksi pembelian aktif.']);
-        }
-
         $barang = Barang::findOrFail($request->ID_Barang);
-        $totalHarga = $barang->Harga_Barang * $request->Jumlah_Pesanan;
 
-        // Simpan ke tabel pivot BarangPembelian
-        $detail = BarangPembelian::create([
-            'ID_Pembelian' => $pembelianId,
-            'ID_Barang' => $request->ID_Barang,
-            'Jumlah_Pesanan' => $request->Jumlah_Pesanan,
-            'Total_Harga' => $totalHarga,
-        ]);
+        BarangPembelian::updateOrCreate(
+            [
+                'ID_Pembelian' => $pembelianId,
+                'ID_Barang' => $barang->ID_Barang,
+            ],
+            [
+                'Jumlah' => DB::raw('Jumlah + ' . $request->Jumlah),
+                'Harga_Beli' => $barang->Harga_Barang,
+            ]
+        );
 
-        // Hitung total keseluruhan pembelian
-        $grandTotal = BarangPembelian::where('ID_Pembelian', $pembelianId)->sum('Total_Harga');
-        Pembelian::where('ID_Pembelian', $pembelianId)->update(['Harga_Keseluruhan' => $grandTotal]);
-
-        return response()->json([
-            'success' => true,
-            'barang' => $barang->Nama_Barang,
-            'deskripsi' => $barang->Deskripsi_Barang,
-            'jumlah' => $detail->Jumlah_Pesanan,
-            'harga' => $barang->Harga_Barang,
-            'total' => $detail->Total_Harga,
-            'grandTotal' => $grandTotal,
-        ]);
+        return redirect()->back()->with('success', 'Barang berhasil ditambahkan ke pembelian.');
     }
 
     /**
-     * Menyelesaikan pembelian dan menambah stok barang.
+     * Hapus item dari pembelian
      */
-    public function checkout(Request $request)
+    public function removeItem($id)
     {
         $pembelianId = session('pembelian_id');
 
-        if (!$pembelianId) {
-            return redirect()->back()->with('error', 'Tidak ada transaksi pembelian aktif!');
-        }
+        BarangPembelian::where('ID_Pembelian', $pembelianId)
+            ->where('ID_Barang', $id)
+            ->delete();
 
-        $jumlahItem = BarangPembelian::where('ID_Pembelian', $pembelianId)->count();
-        if ($jumlahItem == 0) {
-            return redirect()->back()->with('error', 'Tidak dapat menyelesaikan pembelian tanpa barang!');
-        }
-
-        if (!$request->ID_Distributor) {
-            return redirect()->back()->with('error', 'Distributor harus dipilih!');
-        }
-
-        DB::beginTransaction();
-        try {
-            $details = BarangPembelian::where('ID_Pembelian', $pembelianId)->get();
-
-            // Tambahkan stok barang sesuai jumlah pembelian
-            foreach ($details as $item) {
-                $barang = Barang::findOrFail($item->ID_Barang);
-                $barang->Stok_Barang += $item->Jumlah_Pesanan;
-                $barang->save();
-            }
-
-            // Update status pembelian
-            Pembelian::where('ID_Pembelian', $pembelianId)->update([
-                'ID_Distributor' => $request->ID_Distributor,
-                'Status' => 'Selesai',
-                'Tanggal' => now(),
-            ]);
-
-            DB::commit();
-
-            session()->forget('pembelian_id');
-
-            return redirect()->route('pembelian.index')->with('success', 'Pembelian selesai dan stok berhasil diperbarui!');
-        } catch (\Exception $e) {
-            DB::rollBack();
-            return redirect()->back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
-        }
+        return redirect()->back()->with('success', 'Barang berhasil dihapus dari daftar.');
     }
 
     /**
-     * Menghapus barang dari pembelian.
-     */
-    public function destroy(Request $request)
-    {
-        $idPembelian = $request->input('ID_Pembelian');
-        $idBarang = $request->input('ID_Barang');
-
-        $detail = BarangPembelian::where('ID_Pembelian', $idPembelian)
-            ->where('ID_Barang', $idBarang)
-            ->firstOrFail();
-
-        $detail->delete();
-
-        // Update total keseluruhan
-        $grandTotal = BarangPembelian::where('ID_Pembelian', $idPembelian)->sum('Total_Harga');
-        Pembelian::where('ID_Pembelian', $idPembelian)->update(['Harga_Keseluruhan' => $grandTotal]);
-
-        return redirect()->back()->with('success', 'Barang berhasil dihapus dari pembelian.');
-    }
-
-    /**
-     * Batalkan transaksi pembelian (hapus item dan reset total).
+     * Batalkan transaksi pembelian
      */
     public function cancel()
     {
         $pembelianId = session('pembelian_id');
 
-        if (!$pembelianId) {
-            return redirect()->back()->with('error', 'Tidak ada pembelian untuk dibatalkan.');
+        if ($pembelianId) {
+            BarangPembelian::where('ID_Pembelian', $pembelianId)->delete();
+            Pembelian::where('ID_Pembelian', $pembelianId)->delete();
+            session()->forget('pembelian_id');
         }
 
-        BarangPembelian::where('ID_Pembelian', $pembelianId)->delete();
-
-        Pembelian::where('ID_Pembelian', $pembelianId)->update([
-            'Harga_Keseluruhan' => 0,
-            'Status' => 'Pending',
-            'Tanggal' => now(),
-        ]);
-
-        return redirect()->route('pembelian.create')->with('success', 'Transaksi pembelian dibatalkan dan data telah direset.');
+        return redirect()->route('pembelian.index')->with('error', 'Transaksi pembelian dibatalkan.');
     }
 
     /**
-     * Membatalkan transaksi pembelian tertentu dan rollback stok.
+     * Selesaikan pembelian (checkout)
      */
-    public function batalPembelian($id)
+    public function checkout(Request $request)
     {
-        $pembelian = Pembelian::with('barangpembelian')->findOrFail($id);
+        $pembelianId = session('pembelian_id');
+        $pembelian = Pembelian::findOrFail($pembelianId);
 
-        if ($pembelian->Status === 'Batal') {
-            return redirect()->back()->with('error', 'Transaksi ini sudah dibatalkan sebelumnya.');
+        // 🟩 Ambil data keranjang dari input hidden (JSON)
+        $barangData = json_decode($request->barang, true);
+
+        // Validasi data
+        if (!$barangData || !is_array($barangData)) {
+            return back()->with('error', 'Data barang tidak valid atau kosong.');
         }
 
-        // Rollback stok barang
-        foreach ($pembelian->barangpembelian as $item) {
-            $barang = Barang::find($item->ID_Barang);
-            if ($barang) {
-                $barang->Stok_Barang -= $item->Jumlah_Pesanan;
-                $barang->save();
-            }
+        // Hapus semua barang lama di pembelian ini (jika ada)
+        BarangPembelian::where('ID_Pembelian', $pembelianId)->delete();
+
+        $totalHarga = 0;
+
+        // 🟩 Loop tiap item dari JSON dan simpan ke tabel barangpembelian
+        foreach ($barangData as $item) {
+            if (!isset($item['id'], $item['jumlah'], $item['harga']))
+                continue;
+
+            BarangPembelian::create([
+                'ID_Pembelian' => $pembelianId,
+                'ID_Barang' => $item['id'],
+                'Jumlah' => $item['jumlah'],
+                'Harga_Beli' => $item['harga'],
+            ]);
+
+            $totalHarga += $item['jumlah'] * $item['harga'];
         }
 
-        $pembelian->update(['Status' => 'Batal']);
+        // 🟩 Simpan total harga ke tabel pembelian
+        $pembelian->update([
+            'ID_Distributor' => $request->ID_Distributor,
+            'Tanggal_Jatuh_Tempo' => $request->Tanggal_Jatuh_Tempo,
+            'Harga_Keseluruhan' => $totalHarga,
+        ]);
 
-        return redirect()->route('pembelian.index')->with('success', 'Transaksi pembelian berhasil dibatalkan dan stok dikembalikan.');
+        // 🟩 Hapus session pembelian agar reset
+        session()->forget('pembelian_id');
+
+        return redirect()->route('pembelian.create')->with('success', 'Pembelian berhasil disimpan.');
     }
+
+
 }

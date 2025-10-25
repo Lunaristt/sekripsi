@@ -2,8 +2,8 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 
 class Pembelian extends Model
 {
@@ -12,7 +12,6 @@ class Pembelian extends Model
     protected $table = 'pembelian';
     protected $primaryKey = 'ID_Pembelian';
     public $incrementing = true;
-    protected $keyType = 'int';
     public $timestamps = false;
 
     protected $fillable = [
@@ -31,19 +30,19 @@ class Pembelian extends Model
     }
 
     /**
-     * Relasi ke Barang melalui tabel pivot barangpembelian
+     * Relasi ke BarangPembelian (pivot)
      */
-    public function barang()
+    public function barangpembelian()
     {
-        return $this->belongsToMany(Barang::class, 'barangpembelian', 'ID_Pembelian', 'ID_Barang')
-            ->withPivot('Jumlah', 'Harga_Beli');
+        return $this->hasMany(BarangPembelian::class, 'ID_Pembelian', 'ID_Pembelian');
     }
 
     /**
-     * Relasi langsung ke model BarangPembelian (pivot detail)
+     * Relasi ke Barang melalui pivot
      */
-    public function detailBarang()
+    public function barang()
     {
-        return $this->hasMany(BarangPembelian::class, 'ID_Pembelian', 'ID_Pembelian');
+        return $this->belongsToMany(Barang::class, 'BarangPembelian', 'ID_Pembelian', 'ID_Barang')
+            ->withPivot('Jumlah', 'Harga_Beli');
     }
 }
