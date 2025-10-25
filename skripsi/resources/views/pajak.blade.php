@@ -20,7 +20,7 @@
             <h4 class="fw-bold mb-0">Laporan Pajak</h4>
 
             <!-- Tombol Refresh -->
-            <a href="{{ route('pajak') }}" class="btn btn-primary ms-2">🔄 Refresh</a>
+            <a href="{{ route('pajak.index') }}" class="btn btn-primary ms-2">🔄 Refresh</a>
         </div>
 
         <!-- Deskripsi -->

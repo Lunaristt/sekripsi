@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Distributor;
+use App\Imports\DistributorImport;
+use Maatwebsite\Excel\Facades\Excel;
 
 class DistributorController extends Controller
 {
@@ -82,5 +84,21 @@ class DistributorController extends Controller
         $distributor->delete();
 
         return redirect()->route('distributor.index')->with('success', 'Distributor berhasil dihapus!');
+    }
+
+    public function import(Request $request)
+    {
+        $request->validate([
+            'file' => 'required|mimes:xlsx,xls'
+        ]);
+
+        Excel::import(new DistributorImport, $request->file('file'));
+
+        return redirect()->route('distributor.index')->with('success', 'Data distributor berhasil diimpor!');
+    }
+
+    public function downloadTemplate()
+    {
+        return response()->download(public_path('template_distributor.xlsx'));
     }
 }

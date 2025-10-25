@@ -63,11 +63,14 @@ Route::prefix('statustransaksi')->name('statustransaksi.')->group(function () {
     Route::delete('/{id}', [PenjualanController::class, 'destroy'])->name('.destroy');
 });
 
+Route::prefix('pajak')->name('pajak.')->group(function () {
+    Route::get('/', [PajakController::class, 'index'])->name('index');
+});
+
 Route::get('tambahkategori', function () {
     return view('tambahmasterdata/tambahkategori'); // blade form kamu
 })->name('tambahkategori');
 
-Route::get('pajak', [PajakController::class, 'index'])->name('pajak');
 
 Route::get('/tambahsatuan', function () {
     return view('tambahmasterdata/tambahsatuan');
@@ -118,10 +121,12 @@ Route::prefix('distributor')->name('distributor.')->group(function () {
     Route::get('/edit/{id}', [DistributorController::class, 'edit'])->name('edit');
     Route::post('/update/{id}', [DistributorController::class, 'update'])->name('update');
     Route::delete('/delete/{id}', [DistributorController::class, 'destroy'])->name('destroy');
+    Route::post('/import', [DistributorController::class, 'import'])->name('import');
+    Route::get('/template', [DistributorController::class, 'downloadTemplate'])->name('downloadTemplate');
 });
 
 Route::prefix('pembelian')->group(function () {
-    Route::get('/', [PembelianController::class, 'index'])->name('pembelian.index');
+    Route::get('/index', [PembelianController::class, 'index'])->name('pembelian.index');
     Route::get('/create', [PembelianController::class, 'create'])->name('pembelian.create');
     Route::post('/add-item', [PembelianController::class, 'addItem'])->name('pembelian.addItem');
     Route::delete('/remove-item/{id}', [PembelianController::class, 'removeItem'])->name('pembelian.removeItem');
