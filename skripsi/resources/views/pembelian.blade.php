@@ -53,7 +53,7 @@
                                 <option value="{{ $d->ID_Distributor }}"
                                     data-nama="{{ $d->Nama_Distributor }}"
                                     data-salesman="{{ $d->Nama_Salesman }}"
-                                    data-telp="{{ $d->No_Telp_Salesman }}">
+                                    data-telp="{{ $d->Notelp_Salesman }}">
                                     {{ $d->Nama_Distributor }}
                                 </option>
                             @endforeach
@@ -82,7 +82,7 @@
                     <div class="col-md-6">
                         <h6 class="fw-bold">Tanggal Jatuh Tempo</h6>
                         <input type="date" id="tanggalJatuhTempo" class="form-control"
-                            value="{{ date('Y-m-d', strtotime('+30 days')) }}">
+                            value="{{ date('Y-m-d', strtotime('+60 days')) }}">
                     </div>
                 </div>
 

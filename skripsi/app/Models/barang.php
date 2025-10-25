@@ -44,4 +44,9 @@ class barang extends Model
             ->withPivot('Jumlah', 'Total_Harga');
     }
 
+    public function distributor()
+    {
+        return $this->belongsTo(Distributor::class, 'ID_Distributor', 'ID_Distributor');
+    }
+
 }

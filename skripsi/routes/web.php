@@ -104,6 +104,13 @@ Route::prefix('transaksi')->name('transaksi.')->group(function () {
     Route::post('/{id}/batal', [TransaksiController::class, 'batalTransaksi'])->name('batal');
 });
 
+Route::prefix('penjualan')->group(function () {
+    Route::get('/', [PenjualanController::class, 'index'])->name('penjualan.index');
+    Route::get('/{id}', [PenjualanController::class, 'show'])->name('penjualan.show');
+    Route::get('/{id}/print', [PenjualanController::class, 'print'])->name('penjualan.print');
+});
+
+
 Route::prefix('distributor')->name('distributor.')->group(function () {
     Route::get('/index', [DistributorController::class, 'index'])->name('index');
     Route::get('/create', [DistributorController::class, 'create'])->name('create');
