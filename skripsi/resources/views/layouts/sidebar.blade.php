@@ -39,7 +39,7 @@
                 </div>
 
                 <a class="nav-link fw-bold text-white {{ request()->is('transaksi') ? 'active' : '' }}"
-                    href="transaksi">
+                    href="{{ route('transaksi.create') }}">
                     Buat Penjualan
                 </a>
                 {{-- Dropdown Tambah Kategori --}}
@@ -50,7 +50,7 @@
                     </a>
                 </div>
                 <a class="nav-link fw-bold text-white {{ request()->is('pembelian') ? 'active' : '' }}"
-                    href="{{ route('pembelian') }}">
+                    href="{{route('pembelian.create')}}">
                     Buat Pembelian
                 </a>
 
@@ -68,10 +68,16 @@
                     </div>
                 </div>
 
-                <a class="nav-link fw-bold text-white {{ request()->is('tambahdistributor') ? 'active' : '' }}"
-                    href="{{ route('tambahdistributor') }}">
-                    Tambah Distributor
+                <a class="nav-link fw-bold text-white {{ request()->is('distributor') ? 'active' : '' }}"
+                    href="{{ route('distributor.index') }}">
+                    Daftar Distributor
                 </a>
+                <div class="ms-3">
+                    <a class="nav-link text-white {{ request()->is('tambahdistributor') ? 'active' : '' }}"
+                        href="{{ route('tambahdistributor') }}">
+                        📂 Tambah Distributor
+                    </a>
+                </div>
 
                 <a class="nav-link fw-bold text-white {{ request()->is('pajak') ? 'active' : '' }}" href="pajak">
                     Faktur Pajak
