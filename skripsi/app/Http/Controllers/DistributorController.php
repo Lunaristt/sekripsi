@@ -13,7 +13,7 @@ class DistributorController extends Controller
     public function index()
     {
         $distributors = Distributor::all();
-        return view('distributor.index', compact('distributors'));
+        return view('distributor.distributor', compact('distributors'));
     }
 
     /**
@@ -21,7 +21,7 @@ class DistributorController extends Controller
      */
     public function create()
     {
-        return view('tambahdistributor');
+        return view('distributor.tambahdistributor');
     }
 
     /**

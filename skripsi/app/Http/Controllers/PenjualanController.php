@@ -20,6 +20,18 @@ class PenjualanController extends Controller
         return view('statustransaksi', compact('penjualan'));
     }
 
+    public function show($idPenjualan)
+    {
+        // Ambil data penjualan lengkap dengan pelanggan dan daftar barang yang dibeli
+        $penjualan = Penjualan::with([
+            'pelanggan', // relasi ke tabel pelanggan
+            'barangpenjualan.barang' // relasi pivot ke barang
+        ])->findOrFail($idPenjualan);
+
+        // Kirim data ke view khusus tampilan readonly
+        return view('lihattransaksi', compact('penjualan'));
+    }
+
     public function destroy($id)
     {
         $penjualan = Penjualan::findOrFail($id);

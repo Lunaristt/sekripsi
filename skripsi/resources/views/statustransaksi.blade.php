@@ -62,16 +62,27 @@
                                         @endif
                                     </td>
                                     <td class="text-center">
-                                        @if($p->Status === 'Batal')
-                                            <button class="btn btn-secondary" disabled>Batal</button>
-                                        @else
-                                            <form action="{{ route('transaksi.batal', $p->ID_Penjualan) }}" method="POST"
-                                                onsubmit="return confirm('Apakah Anda yakin ingin membatalkan transaksi ini?');">
-                                                @csrf
-                                                <button type="submit" class="btn btn-danger text-white">Batal</button>
-                                            </form>
-                                        @endif
+                                        <div class="d-flex justify-content-center gap-2">
+                                            {{-- 🔍 Tombol Lihat --}}
+                                            <a href="{{ route('penjualan.show', $p->ID_Penjualan) }}"
+                                                class="btn btn-info btn-sm text-white">
+                                                🔍 Lihat
+                                            </a>
+
+                                            {{-- ❌ Tombol Batal --}}
+                                            @if($p->Status === 'Batal')
+                                                <button class="btn btn-secondary btn-sm" disabled>Batal</button>
+                                            @else
+                                                <form action="{{ route('transaksi.batal', $p->ID_Penjualan) }}" method="POST"
+                                                    onsubmit="return confirm('Apakah Anda yakin ingin membatalkan transaksi ini?');">
+                                                    @csrf
+                                                    <button type="submit"
+                                                        class="btn btn-danger btn-sm text-white">Batal</button>
+                                                </form>
+                                            @endif
+                                        </div>
                                     </td>
+
                                 </tr>
                             @empty
                                 <tr>

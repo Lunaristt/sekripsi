@@ -22,4 +22,10 @@ class Distributor extends Model
     {
         return $this->hasMany(Pembelian::class, 'ID_Distributor', 'ID_Distributor');
     }
+
+    public function barang()
+    {
+        return $this->hasMany(Barang::class, 'ID_Distributor', 'ID_Distributor');
+    }
+
 }

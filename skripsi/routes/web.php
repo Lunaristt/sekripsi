@@ -8,10 +8,9 @@ use App\Http\Controllers\RegisController;
 use App\Http\Controllers\PelangganController;
 use App\Http\Controllers\PenjualanController;
 use App\Http\Controllers\DistributorController;
-use App\Http\Controllers\PembelianController;
 use App\Http\Controllers\LaporanController;
 use App\Http\Controllers\PajakController;
-
+use App\Http\Controllers\PembelianController;
 use App\Http\Controllers\DashboardController;
 
 Route::get('/', [AuthController::class, 'showLogin'])->name('login');
@@ -79,7 +78,7 @@ Route::get('/tambahpelanggan', function () {
 })->name('tambahpelanggan');
 
 Route::get('/tambahdistributor', function () {
-    return view('tambahdistributor');
+    return view('distributor/tambahdistributor');
 })->name('tambahdistributor');
 
 Route::get('/home', function () {
@@ -105,23 +104,29 @@ Route::prefix('transaksi')->name('transaksi.')->group(function () {
     Route::post('/{id}/batal', [TransaksiController::class, 'batalTransaksi'])->name('batal');
 });
 
+Route::prefix('penjualan')->group(function () {
+    Route::get('/', [PenjualanController::class, 'index'])->name('penjualan.index');
+    Route::get('/{id}', [PenjualanController::class, 'show'])->name('penjualan.show');
+    Route::get('/{id}/print', [PenjualanController::class, 'print'])->name('penjualan.print');
+});
+
+
 Route::prefix('distributor')->name('distributor.')->group(function () {
-    Route::get('/', [DistributorController::class, 'index'])->name('index');
-    Route::get('/', [DistributorController::class, 'create'])->name('create');
+    Route::get('/index', [DistributorController::class, 'index'])->name('index');
+    Route::get('/create', [DistributorController::class, 'create'])->name('create');
     Route::post('/store', [DistributorController::class, 'store'])->name('store');
     Route::get('/edit/{id}', [DistributorController::class, 'edit'])->name('edit');
     Route::post('/update/{id}', [DistributorController::class, 'update'])->name('update');
     Route::delete('/delete/{id}', [DistributorController::class, 'destroy'])->name('destroy');
 });
 
-Route::prefix('pembelian')->name('pembelian.')->group(function () {
-    Route::get('/', [PembelianController::class, 'index'])->name('index');
-    Route::get('/create', [PembelianController::class, 'create'])->name('create');
-    Route::post('/add-item', [PembelianController::class, 'addItem'])->name('addItem');
-    Route::post('/checkout', [PembelianController::class, 'checkout'])->name('checkout');
-    Route::post('/destroy', [PembelianController::class, 'destroy'])->name('destroy');
-    Route::get('/cancel', [PembelianController::class, 'cancel'])->name('cancel');
-    Route::post('/batal/{id}', [PembelianController::class, 'batalPembelian'])->name('batalPembelian');
+Route::prefix('pembelian')->group(function () {
+    Route::get('/', [PembelianController::class, 'index'])->name('pembelian.index');
+    Route::get('/create', [PembelianController::class, 'create'])->name('pembelian.create');
+    Route::post('/add-item', [PembelianController::class, 'addItem'])->name('pembelian.addItem');
+    Route::delete('/remove-item/{id}', [PembelianController::class, 'removeItem'])->name('pembelian.removeItem');
+    Route::post('/cancel', [PembelianController::class, 'cancel'])->name('pembelian.cancel');
+    Route::post('/checkout', [PembelianController::class, 'checkout'])->name('pembelian.checkout');
 });
 
 
@@ -129,6 +134,9 @@ Route::get('/pembelian', function () {
     return view('pembelian');
 })->name('pembelian');
 
+Route::get('/distributor', function () {
+    return view('distributor/distributor');
+})->name('distributor');
 
 Route::prefix('laporan')->name('laporan.')->group(function () {
     Route::get('/pengeluaran', [LaporanController::class, 'pengeluaran'])->name('pengeluaran');
