@@ -76,10 +76,6 @@ Route::get('/tambahsatuan', function () {
     return view('tambahmasterdata/tambahsatuan');
 })->name('tambahsatuan');
 
-Route::get('/tambahpelanggan', function () {
-    return view('pelanggan/tambahpelanggan'); // blade form kamu
-})->name('tambahpelanggan');
-
 Route::get('/tambahdistributor', function () {
     return view('distributor/tambahdistributor');
 })->name('tambahdistributor');

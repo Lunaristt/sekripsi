@@ -50,5 +50,4 @@ class barang extends Model
             ->withPivot('Harga_Beli');
     }
 
-
 }

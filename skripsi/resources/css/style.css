@@ -179,3 +179,20 @@ background-color: #e6b800;
   border: 1px solid #ced4da;
   border-radius: 6px;
 }
+
+/* Pastikan Select2 menyesuaikan tinggi dan lebar Bootstrap */
+.select2-container .select2-selection--single {
+  height: 38px !important;
+  padding: 6px 12px !important;
+  border: 1px solid #ced4da !important;
+  border-radius: 6px !important;
+}
+
+.select2-container--default .select2-selection--single .select2-selection__arrow {
+  height: 36px !important;
+  right: 10px;
+}
+
+.select2-container {
+  width: 100% !important;
+}

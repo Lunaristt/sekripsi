@@ -1,48 +1,32 @@
-<!DOCTYPE html>
-<html lang="id">
+@extends('layouts.app')
 
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Dashboard - Toko Sumber Rejeki</title>
+@section('title', 'Dashboard - Toko Sumber Rejeki')
 
-  <!-- Bootstrap & Chart.js -->
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+@section('content')
+  <div class="d-flex justify-content-between align-items-center mb-3 border-bottom pb-2">
+    <h2 class="h4">📈 Dashboard Omzet</h2>
 
-  @vite(['resources/css/style.css', 'resources/js/app.js'])
-</head>
+    <!-- 🔽 Dropdown Filter -->
+    <select id="filterSelect" class="form-select w-auto">
+      <option value="tahun">Per Tahun</option>
+      <option value="bulan" selected>Per Bulan</option>
+      <option value="minggu">Per Minggu</option>
+      <option value="hari">Per Hari</option>
+    </select>
+  </div>
 
-<body>
-  @include('layouts.navbar')
-  <div class="container-fluid">
-    <div class="row">
-      @include('layouts.sidebar')
-
-      <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 py-4">
-        <div class="d-flex justify-content-between align-items-center mb-3 border-bottom pb-2">
-          <h2 class="h4">Dashboard Omzet</h2>
-
-          <!-- 🔽 Dropdown Filter -->
-          <select id="filterSelect" class="form-select w-auto">
-            <option value="tahun">Per Tahun</option>
-            <option value="bulan" selected>Per Bulan</option>
-            <option value="minggu">Per Minggu</option>
-            <option value="hari">Per Hari</option>
-          </select>
-        </div>
-
-        <div class="card shadow-sm mb-4">
-          <div class="card-body">
-            <h5 class="card-title text-center mb-3">Grafik Omzet Penjualan</h5>
-            <canvas id="omzetChart" height="120"></canvas>
-          </div>
-        </div>
-      </main>
+  <div class="card shadow-sm mb-4">
+    <div class="card-body">
+      <h5 class="card-title text-center mb-3">Grafik Omzet Penjualan</h5>
+      <canvas id="omzetChart" height="120"></canvas>
     </div>
   </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+@endsection
+
+@push('scripts')
+  <!-- ✅ Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
   <script>
     let chart;
@@ -57,7 +41,7 @@
           if (chart) chart.destroy();
 
           // 🔹 Tentukan jenis grafik berdasarkan filter
-          let chartType = (filter === 'tahun' || filter === 'bulan') ? 'bar' : 'line';
+          const chartType = (filter === 'tahun' || filter === 'bulan') ? 'bar' : 'line';
 
           chart = new Chart(ctx, {
             type: chartType,
@@ -67,8 +51,8 @@
                 label: `Omzet (${filter})`,
                 data: data.values,
                 backgroundColor: chartType === 'bar'
-                  ? 'rgba(139, 13, 24, 0.5)'    // Warna batang
-                  : 'rgba(139, 13, 24, 0.2)',   // Warna area line
+                  ? 'rgba(139, 13, 24, 0.5)'
+                  : 'rgba(139, 13, 24, 0.2)',
                 borderColor: '#8b0d18',
                 borderWidth: 2,
                 tension: 0.4,
@@ -81,10 +65,7 @@
                 legend: { position: 'bottom' },
                 tooltip: {
                   callbacks: {
-                    label: function (context) {
-                      let val = context.parsed.y || context.parsed;
-                      return 'Rp ' + val.toLocaleString('id-ID');
-                    }
+                    label: ctx => 'Rp ' + (ctx.parsed.y || ctx.parsed).toLocaleString('id-ID')
                   }
                 }
               },
@@ -96,11 +77,7 @@
                   }
                 },
                 x: {
-                  ticks: {
-                    autoSkip: true,
-                    maxRotation: 45,
-                    minRotation: 0
-                  }
+                  ticks: { autoSkip: true, maxRotation: 45, minRotation: 0 }
                 }
               }
             }
@@ -113,10 +90,6 @@
     loadChart('bulan');
 
     // 🔹 Ganti filter
-    document.getElementById('filterSelect').addEventListener('change', function () {
-      loadChart(this.value);
-    });
+    document.getElementById('filterSelect').addEventListener('change', e => loadChart(e.target.value));
   </script>
-</body>
-
-</html>
+@endpush

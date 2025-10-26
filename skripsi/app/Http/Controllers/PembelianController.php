@@ -16,12 +16,16 @@ class PembelianController extends Controller
      */
     public function index()
     {
-        $pembelian = Pembelian::with('distributor', 'barang')
+        $pembelian = Pembelian::with([
+            'distributor',                    // relasi utama pembelian → distributor
+            'barang.distributor'              // relasi barang → distributor (pivot barangdistributor)
+        ])
             ->orderBy('Tanggal', 'desc')
             ->get();
 
         return view('pembelian', compact('pembelian'));
     }
+
 
     /**
      * Form pembelian baru / melanjutkan pembelian pending
@@ -191,9 +195,11 @@ class PembelianController extends Controller
             return [
                 'id' => $b->ID_Barang,
                 'nama' => $b->Nama_Barang,
+                'deskripsi' => $b->Deskripsi_Barang ?? '-', // tambahkan ini
                 'harga_beli' => $hargaBeli,
             ];
         });
+
 
         return response()->json($data);
     }

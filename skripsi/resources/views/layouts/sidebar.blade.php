@@ -1,101 +1,92 @@
-<div class="container-fluid">
-    <div class="row">
-        <!-- Sidebar -->
-        <div class="col-md-2 sidebar">
-            <nav class="nav flex-column">
-                <a class="nav-link fw-bold text-white {{ request()->is('barang/barang') ? 'active' : '' }}"
-                    href="{{ route('barang.index') }}">
-                    Lihat Stok Barang
-                </a>
+<div class="col-md-2 sidebar text-white p-3">
+    <nav class="nav flex-column">
 
-                {{-- Default Tambah Barang Baru --}}
-                <a class="nav-link fw-bold text-white {{ request()->is('barang/tambahbarang*') ? 'active' : '' }}"
-                    href="{{ route('tambahbarang.create') }}">
-                    Tambah Barang Baru
-                </a>
-
-                {{-- Dropdown Tambah Kategori --}}
-                <div class="ms-3">
-                    <a class="nav-link text-white {{ request()->is('tambahkategori') ? 'active' : '' }}"
-                        href="{{ route('tambahkategori') }}">
-                        📂 Tambah Kategori
-                    </a>
-                    <a class="nav-link text-white {{ request()->is('tambahsatuan') ? 'active' : '' }}"
-                        href="{{ route('tambahsatuan') }}">
-                        📏 Tambah Satuan
-                    </a>
-                </div>
-
-                <a class="nav-link fw-bold text-white {{ request()->is('pelanggan') ? 'active' : '' }}"
-                    href="{{ route('pelanggan.index') }}">
-                    List Pelanggan
-                </a>
-                {{-- Dropdown Tambah data pelanggan --}}
-                <div class="ms-3">
-                    <a class="nav-link text-white {{ request()->is('tambahpelanggan') ? 'active' : '' }}"
-                        href="{{ route('tambahpelanggan') }}">
-                        📂 Tambah Data Pelanggan
-                    </a>
-                </div>
-
-                <a class="nav-link fw-bold text-white {{ request()->is('transaksi') ? 'active' : '' }}"
-                    href="{{ route('transaksi.create') }}">
-                    Buat Penjualan
-                </a>
-                {{-- Dropdown Tambah Kategori --}}
-                <div class="ms-3">
-                    <a class="nav-link text-white {{ request()->is('statustransaksi') ? 'active' : '' }}"
-                        href="{{ route('statustransaksi.index') }}">
-                        📂 Status Transaksi
-                    </a>
-                </div>
-                <a class="nav-link fw-bold text-white {{ request()->is('pembelian') ? 'active' : '' }}"
-                    href="{{route('pembelian.create')}}">
-                    Buat Pembelian
-                </a>
-
-                {{-- ✅ Dropdown Laporan --}}
-                <div class="dropdown-container mt-2">
-                    <button class="btn btn-danger w-100 text-start fw-bold text-white border-0 dropdown-toggle"
-                        type="button" id="laporanDropdown">
-                        📊 Laporan
-                    </button>
-                    <div id="laporanMenu" class="dropdown-anim mt-1">
-                        <a class="nav-link text-white ps-4 py-1 {{ request()->is('laporan/pengeluaran') ? 'active' : '' }}"
-                            href="#">📉 Laporan Pengeluaran</a>
-                        <a class="nav-link text-white ps-4 py-1 {{ request()->is('laporan/pemasukan') ? 'active' : '' }}"
-                            href="{{route('laporan.pemasukan')}}">📈 Laporan Pemasukan</a>
-                    </div>
-                </div>
-
-                <a class="nav-link fw-bold text-white {{ request()->is('distributor') ? 'active' : '' }}"
-                    href="{{ route('distributor.index') }}">
-                    Daftar Distributor
-                </a>
-                <div class="ms-3">
-                    <a class="nav-link text-white {{ request()->is('tambahdistributor') ? 'active' : '' }}"
-                        href="{{ route('tambahdistributor') }}">
-                        📂 Tambah Distributor
-                    </a>
-                </div>
-
-                <a class="nav-link fw-bold text-white {{ request()->is('pajak') ? 'active' : '' }}"
-                    href="{{route('pajak.index')}}">
-                    Faktur Pajak
-                </a>
-
-            </nav>
+        <!-- 📦 Barang -->
+        <div class="mb-2">
+            <a class="nav-link fw-bold text-white" data-bs-toggle="collapse" data-bs-target="#menuBarang" role="button">
+                📦 Barang
+            </a>
+            <div class="collapse ms-3 {{ request()->is('barang*') || request()->is('tambahbarang*') || request()->is('tambahkategori') || request()->is('tambahsatuan') ? 'show' : '' }}"
+                id="menuBarang">
+                <a href="{{ route('barang.index') }}"
+                    class="nav-link text-white {{ request()->is('barang*') ? 'fw-bold' : '' }}">Lihat Stok</a>
+                <a href="{{ route('tambahbarang.create') }}"
+                    class="nav-link text-white {{ request()->is('tambahbarang*') ? 'fw-bold' : '' }}">Barang Baru</a>
+                <a href="{{ route('tambahkategori') }}"
+                    class="nav-link text-white {{ request()->is('tambahkategori') ? 'fw-bold' : '' }}">Kategori</a>
+                <a href="{{ route('tambahsatuan') }}"
+                    class="nav-link text-white {{ request()->is('tambahsatuan') ? 'fw-bold' : '' }}">Satuan</a>
+            </div>
         </div>
 
-        <script>
-            // Animasi toggle dropdown laporan
-            document.addEventListener('DOMContentLoaded', function () {
-                const toggle = document.getElementById('laporanDropdown');
-                const menu = document.getElementById('laporanMenu');
+        <!-- 👥 Pelanggan -->
+        <div class="mb-2">
+            <a class="nav-link fw-bold text-white" data-bs-toggle="collapse" data-bs-target="#menuPelanggan"
+                role="button">
+                👥 Pelanggan
+            </a>
+            <div class="collapse ms-3 {{ request()->is('pelanggan*') || request()->is('tambahpelanggan') ? 'show' : '' }}"
+                id="menuPelanggan">
+                <a href="{{ route('pelanggan.index') }}"
+                    class="nav-link text-white {{ request()->is('pelanggan*') ? 'fw-bold' : '' }}">Daftar Pelanggan</a>
+                <a href="{{ route('pelanggan.create') }}"
+                    class="nav-link text-white {{ request()->is('tambahpelanggan') ? 'fw-bold' : '' }}">Tambah
+                    Pelanggan</a>
+            </div>
+        </div>
 
-                toggle.addEventListener('click', function () {
-                    menu.classList.toggle('show');
-                    toggle.classList.toggle('active');
-                });
-            });
-        </script>
+        <!-- 💰 Transaksi -->
+        <div class="mb-2">
+            <a class="nav-link fw-bold text-white" data-bs-toggle="collapse" data-bs-target="#menuTransaksi"
+                role="button">
+                💰 Transaksi
+            </a>
+            <div class="collapse ms-3 {{ request()->is('transaksi*') || request()->is('statustransaksi*') || request()->is('pembelian*') ? 'show' : '' }}"
+                id="menuTransaksi">
+                <a href="{{ route('transaksi.create') }}"
+                    class="nav-link text-white {{ request()->is('transaksi*') ? 'fw-bold' : '' }}">Penjualan</a>
+                <a href="{{ route('statustransaksi.index') }}"
+                    class="nav-link text-white {{ request()->is('statustransaksi*') ? 'fw-bold' : '' }}">Status
+                    Transaksi</a>
+                <a href="{{ route('pembelian.create') }}"
+                    class="nav-link text-white {{ request()->is('pembelian*') ? 'fw-bold' : '' }}">Pembelian</a>
+            </div>
+        </div>
+
+        <!-- 📊 Laporan -->
+        <div class="mb-2">
+            <a class="nav-link fw-bold text-white" data-bs-toggle="collapse" data-bs-target="#menuLaporan"
+                role="button">
+                📊 Laporan
+            </a>
+            <div class="collapse ms-3 {{ request()->is('laporan*') ? 'show' : '' }}" id="menuLaporan">
+                <a href="#" class="nav-link text-white">Laporan Pengeluaran</a>
+                <a href="{{ route('laporan.pemasukan') }}"
+                    class="nav-link text-white {{ request()->is('laporan/pemasukan') ? 'fw-bold' : '' }}">Laporan
+                    Pemasukan</a>
+            </div>
+        </div>
+
+        <!-- 🏢 Distributor -->
+        <div class="mb-2">
+            <a class="nav-link fw-bold text-white" data-bs-toggle="collapse" data-bs-target="#menuDistributor"
+                role="button">
+                🏢 Distributor
+            </a>
+            <div class="collapse ms-3 {{ request()->is('distributor*') || request()->is('tambahdistributor') ? 'show' : '' }}"
+                id="menuDistributor">
+                <a href="{{ route('distributor.index') }}"
+                    class="nav-link text-white {{ request()->is('distributor*') ? 'fw-bold' : '' }}">Daftar
+                    Distributor</a>
+                <a href="{{ route('tambahdistributor') }}"
+                    class="nav-link text-white {{ request()->is('tambahdistributor') ? 'fw-bold' : '' }}">Tambah
+                    Distributor</a>
+            </div>
+        </div>
+
+        <!-- 🧾 Pajak -->
+        <a href="{{ route('pajak.index') }}"
+            class="nav-link fw-bold text-white {{ request()->is('pajak*') ? 'text-warning' : '' }}">🧾 Faktur Pajak</a>
+
+    </nav>
+</div>

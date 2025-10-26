@@ -16,7 +16,7 @@ class PelangganController extends Controller
     public function create()
     {
         $pelanggan = pelanggan::all();
-        return view('tambahpelanggan', compact('pelanggan'));
+        return view('pelanggan.tambahpelanggan', compact('pelanggan'));
     }
 
     public function store(Request $request)
