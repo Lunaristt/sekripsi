@@ -22,10 +22,12 @@ class LaporanController extends Controller
             ->where('Status', 'Selesai')
             ->where('Harga_Keseluruhan', '>', 0)
             ->orderBy('Tanggal', 'asc')
-            ->get();
+            ->paginate(20) // <-- Tambah pagination 20 data per halaman
+            ->appends(['bulan' => $bulan]); // <-- agar filter bulan tetap terbawa
 
         return view('laporan.pemasukan', compact('penjualan', 'bulan'));
     }
+
     // public function pengeluaran(Request $request)
 //     {
 //         // Ambil bulan dari input, default bulan ini

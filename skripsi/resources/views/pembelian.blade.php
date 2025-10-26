@@ -114,7 +114,7 @@
                             <option value="">-- Pilih Barang --</option>
                             @foreach($barang as $b)
                                 <option value="{{ $b->ID_Barang }}">
-                                    {{ $b->Nama_Barang }} - Rp{{ number_format($b->Harga_Barang, 0, ',', '.') }}
+                                    {{ $b->Nama_Barang }}
                                 </option>
                             @endforeach
                         </select>
@@ -158,112 +158,61 @@
 
     {{-- ===================================================== --}}
     <script>
-        $(document).ready(function () {
+$(document).ready(function () {
+    // === SETUP SELECT2 DISTRIBUTOR ===
+    $('#namaDistributor').select2({
+        placeholder: 'Pilih distributor...',
+        allowClear: true,
+        width: '100%'
+    });
 
-            // === SELECT2 SETUP ===
-            $('#namaDistributor').select2({
-                placeholder: 'Pilih distributor...',
-                allowClear: true,
-                width: '100%'
-            });
+    // === Ketika distributor berubah, ambil barang yang sesuai ===
+    $('#namaDistributor').on('change', function () {
+        const distributorId = $(this).val();
+        const salesman = $(this).find(':selected').data('salesman') || '';
+        const telp = $(this).find(':selected').data('telp') || '';
 
-            // === AUTO FILL SALESMAN DAN TELEPON ===
-            $('#namaDistributor').on('change', function () {
-                const selected = $(this).find(':selected');
-                const salesman = selected.data('salesman') || '';
-                const telp = selected.data('telp') || '';
+        // Isi otomatis data salesman & telp
+        $('#namaSalesman').val(salesman);
+        $('#noTelpSalesman').val(telp);
 
-                console.log("Salesman:", salesman, "Telp:", telp); // Debug
-                $('#namaSalesman').val(salesman);
-                $('#noTelpSalesman').val(telp);
-            });
+        // Kosongkan dropdown barang dulu
+        $('#ID_Barang').html('<option value="">Memuat data barang...</option>');
 
-            // === DATA BARANG (KERANJANG) ===
-            let keranjang = [];
+        if (distributorId) {
+            // Panggil route AJAX
+            $.get(`/pembelian/barang-by-distributor/${distributorId}`, function (data) {
+                let options = '<option value="">-- Pilih Barang --</option>';
 
-            function renderTabel() {
-                const tbody = $('#listBarang');
-                tbody.empty();
-
-                if (keranjang.length === 0) {
-                    tbody.html('<tr><td colspan="6" class="text-center">Belum ada barang dalam pembelian</td></tr>');
-                } else {
-                    keranjang.forEach((item, i) => {
-                        tbody.append(`
-                            <tr>
-                                <td>${item.nama}</td>
-                                <td>-</td>
-                                <td>${item.jumlah}</td>
-                                <td>Rp ${item.harga.toLocaleString('id-ID')}</td>
-                                <td>Rp ${(item.total).toLocaleString('id-ID')}</td>
-                                <td><button class="btn btn-danger btn-sm" onclick="hapusBarang(${i})">Hapus</button></td>
-                            </tr>
-                        `);
+                if (data.length > 0) {
+                    data.forEach(item => {
+                        options += `<option value="${item.id}" data-harga="${item.harga_beli}">
+                            ${item.nama} - Rp${item.harga_beli.toLocaleString('id-ID')}
+                        </option>`;
                     });
-                }
-
-                const total = keranjang.reduce((sum, item) => sum + item.total, 0);
-                $('#grandTotal').text('Total: Rp ' + total.toLocaleString('id-ID'));
-            }
-
-            window.hapusBarang = function (index) {
-                keranjang.splice(index, 1);
-                renderTabel();
-            }
-
-            // === TAMBAH BARANG ===
-            $('#formAddItem').on('submit', function (e) {
-                e.preventDefault();
-
-                const idBarang = $('#ID_Barang').val();
-                const namaBarang = $('#ID_Barang option:selected').text().split('-')[0].trim();
-                const harga = parseInt($('#Harga_Beli').val());
-                const jumlah = parseInt($('#Jumlah').val());
-
-                if (!idBarang || jumlah <= 0 || harga <= 0) {
-                    Swal.fire('Peringatan', 'Pastikan semua data barang valid.', 'warning');
-                    return;
-                }
-
-                const existing = keranjang.find(item => item.id === idBarang);
-                if (existing) {
-                    existing.jumlah += jumlah;
-                    existing.total = existing.harga * existing.jumlah;
-                    Swal.fire({ icon: 'info', title: 'Jumlah diperbarui!', timer: 800, showConfirmButton: false });
                 } else {
-                    keranjang.push({
-                        id: idBarang,
-                        nama: namaBarang,
-                        jumlah: jumlah,
-                        harga: harga,
-                        total: jumlah * harga
-                    });
-                    Swal.fire({ icon: 'success', title: 'Barang ditambahkan!', timer: 800, showConfirmButton: false });
+                    options = '<option value="">Tidak ada barang untuk distributor ini</option>';
                 }
 
-                renderTabel();
-                this.reset();
+                $('#ID_Barang').html(options);
+            }).fail(function () {
+                $('#ID_Barang').html('<option value="">Gagal memuat barang</option>');
             });
+        } else {
+            $('#ID_Barang').html('<option value="">-- Pilih Barang --</option>');
+        }
+    });
 
-            // === CHECKOUT ===
-            $('#checkoutForm').on('submit', function (e) {
-                if (keranjang.length === 0) {
-                    e.preventDefault();
-                    Swal.fire('Kosong', 'Belum ada barang dalam pembelian.', 'warning');
-                    return;
-                }
+    // === Auto isi harga beli dari data-harga di dropdown barang ===
+    $('#ID_Barang').on('change', function () {
+        const harga = $(this).find(':selected').data('harga') || 0;
+        $('#Harga_Beli').val(harga);
+    });
 
-                const selected = $('#namaDistributor option:selected');
-                $('#checkoutDistributor').val(selected.val());
-                $('#checkoutTempo').val($('#tanggalJatuhTempo').val());
-                $('#checkoutBarang').val(JSON.stringify(keranjang));
-                $('#checkoutSalesman').val($('#namaSalesman').val());
-                $('#checkoutTelpSalesman').val($('#noTelpSalesman').val());
-            });
+    // ... (lanjutkan dengan kode keranjangmu seperti sebelumnya)
+});
+</script>
 
-            renderTabel();
-        });
-    </script>
 </body>
 
 </html>

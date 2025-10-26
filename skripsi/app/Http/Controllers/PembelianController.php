@@ -172,5 +172,30 @@ class PembelianController extends Controller
         return redirect()->route('pembelian.create')->with('success', 'Pembelian berhasil disimpan.');
     }
 
+    public function getBarangByDistributor($id)
+    {
+        // Ambil barang yang berelasi dengan distributor tertentu melalui pivot 'barangdistributor'
+        $barang = Barang::whereHas('distributor', function ($q) use ($id) {
+            $q->where('distributor.ID_Distributor', $id);
+        })
+            ->with([
+                'distributor' => function ($q) use ($id) {
+                    $q->where('distributor.ID_Distributor', $id);
+                }
+            ])
+            ->get();
+
+        // Format data untuk dropdown (id, nama, dan harga beli dari pivot)
+        $data = $barang->map(function ($b) {
+            $hargaBeli = $b->distributor->first()->pivot->Harga_Beli ?? 0;
+            return [
+                'id' => $b->ID_Barang,
+                'nama' => $b->Nama_Barang,
+                'harga_beli' => $hargaBeli,
+            ];
+        });
+
+        return response()->json($data);
+    }
 
 }

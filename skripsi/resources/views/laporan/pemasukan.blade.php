@@ -30,7 +30,7 @@
             </div>
         </form>
 
-        @if(isset($penjualan) && count($penjualan) > 0)
+        @if(isset($penjualan) && $penjualan->count() > 0)
             <div class="card shadow-sm p-3">
                 <h5 class="fw-bold mb-3">
                     Periode: {{ \Carbon\Carbon::parse($bulan . '-01')->translatedFormat('F Y') }}
@@ -52,7 +52,7 @@
                                 <td>{{ \Carbon\Carbon::parse($p->Tanggal)->format('d/m/Y') }}</td>
                                 <td>{{ $p->pelanggan->Nama_Pelanggan ?? '-' }}</td>
                                 <td>{{ $p->pelanggan->No_Telp ?? '-' }}</td>
-                                <td class="text-start">Rp {{ number_format($p->Harga_Keseluruhan, 0, ',', '.') }}</td>
+                                <td>Rp {{ number_format($p->Harga_Keseluruhan, 0, ',', '.') }}</td>
                             </tr>
                             @php $totalBulan += $p->Harga_Keseluruhan; @endphp
                         @endforeach
@@ -64,12 +64,18 @@
                         </tr>
                     </tfoot>
                 </table>
+
+                <!-- ✅ Tambahkan Pagination -->
+                <div class="d-flex justify-content-center mt-3">
+                    {{ $penjualan->links('pagination::bootstrap-5') }}
+                </div>
             </div>
         @else
             <div class="alert alert-info mt-3 text-center">
                 Tidak ada data penjualan pada bulan ini.
             </div>
         @endif
+
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>

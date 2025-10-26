@@ -38,21 +38,21 @@
             <div class="mb-3">
                 <label for="Telp_CS" class="form-label fw-semibold">Nomor Telepon CS</label>
                 <input type="text" class="form-control bg-secondary-subtle border-0" id="Telp_CS" name="Telp_CS"
-                    placeholder="Masukkan nomor telepon CS" required>
+                    placeholder="Masukkan nomor telepon CS">
             </div>
 
             <!-- Nama Sales -->
             <div class="mb-3">
                 <label for="Nama_Salesman" class="form-label fw-semibold">Nama Salesman</label>
                 <input type="text" class="form-control bg-secondary-subtle border-0" id="Nama_Salesman"
-                    name="Nama_Salesman" placeholder="Masukkan nama sales" required>
+                    name="Nama_Salesman" placeholder="Masukkan nama sales">
             </div>
 
             <!-- Nomor Telepon Sales -->
             <div class="mb-3">
                 <label for="Notelp_Salesman" class="form-label fw-semibold">Nomor Telepon Salesman</label>
                 <input type="text" class="form-control bg-secondary-subtle border-0" id="Notelp_Salesman"
-                    name="Notelp_Salesman" placeholder="Masukkan nomor telepon sales" required>
+                    name="Notelp_Salesman" placeholder="Masukkan nomor telepon sales">
             </div>
 
             <!-- Tombol Simpan -->

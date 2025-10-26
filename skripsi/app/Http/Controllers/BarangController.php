@@ -3,8 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Models\Barang;
-use App\Models\kategoribarang;
-use App\Models\satuanbarang;
+use App\Models\Kategoribarang;
+use App\Models\Satuanbarang;
+use App\Models\Distributor;
+use App\Models\BarangDistributor;
 use Illuminate\Http\Request;
 use App\Imports\BarangImport;
 use Maatwebsite\Excel\Facades\Excel;
@@ -16,9 +18,9 @@ class BarangController extends Controller
      */
     public function index(Request $request)
     {
-        $query = Barang::with('satuanbarang'); // tidak perlu kategoribarang lagi
+        $query = Barang::with(['satuanbarang', 'distributor']); // tambah relasi distributor
 
-        // 🔍 Fitur Search — cari berdasarkan nama, merek, dan deskripsi
+        // 🔍 Fitur Search
         if ($request->has('search') && !empty($request->search)) {
             $search = $request->search;
             $query->where(function ($q) use ($search) {
@@ -29,10 +31,9 @@ class BarangController extends Controller
         }
 
         // 🔽 Fitur Sort
-        $sort = $request->get('sort', 'Nama_Barang'); // default: Nama_Barang
-        $direction = $request->get('direction', 'asc'); // default: asc
+        $sort = $request->get('sort', 'Nama_Barang');
+        $direction = $request->get('direction', 'asc');
 
-        // Jika sort berdasarkan Merek_Barang, urutkan langsung kolomnya
         if ($sort === 'Merek_Barang') {
             $query->orderBy('Merek_Barang', $direction);
         } else {
@@ -41,73 +42,78 @@ class BarangController extends Controller
 
         // 🔹 Ambil data
         $barang = $query->get();
-        $satuanbarang = satuanbarang::all();
+        $satuanbarang = Satuanbarang::all();
 
         return view('barang.barang', compact('barang', 'satuanbarang', 'sort', 'direction'));
     }
-
-
-
 
     /**
      * Tampilkan form tambah barang.
      */
     public function create()
     {
-        $satuanbarang = satuanbarang::all();
-        $kategoribarang = kategoribarang::all();
-        return view('barang/tambahbarang', compact('kategoribarang', 'satuanbarang'));
+        $satuanbarang = Satuanbarang::all();
+        $kategoribarang = Kategoribarang::all();
+        $distributor = Distributor::all(); // ambil semua distributor
+
+        return view('barang.tambahbarang', compact('kategoribarang', 'satuanbarang', 'distributor'));
     }
 
     /**
-     * Simpan barang baru.
+     * Simpan barang baru + relasi distributor.
      */
     public function store(Request $request)
     {
-        if ($request->hasFile('file_excel')) {
-            Excel::import(new BarangImport, $request->file('file_excel'));
-            return redirect()->route('barang.index')->with('success', 'Data barang berhasil diimpor dari Excel!');
-        }
-
         $request->validate([
-            'Nama_Barang' => 'required|string|max:100',
-            'Merek_Barang' => 'required|string|max:100',
-            'Deskripsi_Barang' => 'nullable|string',
+            'Nama_Barang' => 'required',
+            'ID_Kategori' => 'required',
+            'Merek_Barang' => 'required',
             'Harga_Barang' => 'required|numeric',
             'Stok_Barang' => 'required|integer',
-            'ID_Kategori' => 'required|exists:kategoribarang,ID_Kategori',
-            'ID_Satuan' => 'required|exists:satuanbarang,ID_Satuan',
-            'Besar_Satuan' => 'nullable|string|max:50',
+            'ID_Satuan' => 'required',
+            'ID_Distributor' => 'required',
+            'Harga_Beli' => 'required|numeric',
         ]);
 
-        Barang::create([
-            'ID_Kategori' => $request->ID_Kategori,
-            'ID_Satuan' => $request->ID_Satuan,
-            'Nama_Barang' => $request->Nama_Barang,
-            'Harga_Barang' => $request->Harga_Barang,
-            'Stok_Barang' => $request->Stok_Barang,
-            'Besar_Satuan' => $request->Besar_Satuan,
-            'Merek_Barang' => $request->Merek_Barang,
-            'Deskripsi_Barang' => $request->Deskripsi_Barang,
+        // Simpan barang baru
+        $barang = Barang::create($request->only([
+            'Nama_Barang',
+            'ID_Kategori',
+            'Merek_Barang',
+            'Harga_Barang',
+            'Stok_Barang',
+            'ID_Satuan',
+            'Deskripsi_Barang'
+        ]));
+
+        // Simpan relasi ke pivot barangdistributor
+        BarangDistributor::create([
+            'ID_Barang' => $barang->ID_Barang,
+            'ID_Distributor' => $request->ID_Distributor,
+            'Harga_Beli' => $request->Harga_Beli,
         ]);
 
-        return redirect()->route('barang.index')->with('success', 'Barang berhasil ditambahkan!');
+        return redirect()->route('barang.index')->with('success', 'Barang dan relasi distributor berhasil disimpan!');
     }
 
     /**
-     * Tampilkan form edit barang.
+     * Tampilkan form edit barang + distributor terkait.
      */
     public function edit($id)
     {
-        $barang = Barang::findOrFail($id);
-        $kategoribarang = kategoribarang::all();
-        $satuanbarang = satuanbarang::all();
+        $barang = Barang::with('distributor')->findOrFail($id);
+        $kategoribarang = Kategoribarang::all();
+        $satuanbarang = Satuanbarang::all();
+        $distributor = Distributor::all();
 
-        return view('barang/editbarang', compact('barang', 'kategoribarang', 'satuanbarang'));
+        // Cek apakah barang sudah punya distributor (dari pivot)
+        $pivot = BarangDistributor::where('ID_Barang', $id)->first();
+
+        return view('barang.editbarang', compact('barang', 'kategoribarang', 'satuanbarang', 'distributor', 'pivot'));
     }
 
     /**
-     * Update data barang.
+     * Update data barang + relasi distributor.
      */
     public function update(Request $request, $id)
     {
@@ -119,7 +125,9 @@ class BarangController extends Controller
             'Stok_Barang' => 'required|integer',
             'ID_Kategori' => 'required|exists:kategoribarang,ID_Kategori',
             'ID_Satuan' => 'required|exists:satuanbarang,ID_Satuan',
-            'Besar_Satuan' => 'required|string|max:50',
+            'Besar_Satuan' => 'nullable|string|max:50',
+            'ID_Distributor' => 'required|exists:distributor,ID_Distributor',
+            'Harga_Beli' => 'required|numeric',
         ]);
 
         $barang = Barang::findOrFail($id);
@@ -134,11 +142,17 @@ class BarangController extends Controller
             'Besar_Satuan' => $request->Besar_Satuan,
         ]);
 
-        return redirect()->route('barang.index')->with('success', 'Barang berhasil diperbarui!');
+        // Update pivot relasi BarangDistributor
+        BarangDistributor::updateOrCreate(
+            ['ID_Barang' => $id, 'ID_Distributor' => $request->ID_Distributor],
+            ['Harga_Beli' => $request->Harga_Beli]
+        );
+
+        return redirect()->route('barang.index')->with('success', 'Barang dan relasi distributor berhasil diperbarui!');
     }
 
     /**
-     * Hapus barang.
+     * Hapus barang (otomatis hapus pivot karena foreign key cascade).
      */
     public function destroy($id)
     {
@@ -165,38 +179,8 @@ class BarangController extends Controller
     }
 
     /**
-     * Tambah kategori baru.
+     * Import dari Excel.
      */
-    public function kategori(Request $request)
-    {
-        $request->validate([
-            'Kategori_Barang' => 'required|string|max:100|unique:kategoribarang,Kategori_Barang',
-        ]);
-
-        kategoribarang::create([
-            'Kategori_Barang' => $request->Kategori_Barang,
-        ]);
-
-        return redirect()->route('tambahkategori')->with('success', 'Kategori baru berhasil ditambahkan!');
-    }
-
-    /**
-     * Tambah satuan baru.
-     */
-    public function satuan(Request $request)
-    {
-        $request->validate([
-            'Nama_Satuan' => 'required|string|max:100|unique:satuanbarang,Nama_Satuan',
-        ]);
-
-        satuanbarang::create([
-            'Nama_Satuan' => $request->Nama_Satuan,
-        ]);
-
-        return redirect()->route('tambahsatuan')->with('success', 'Satuan baru berhasil ditambahkan!');
-    }
-
-
     public function import(Request $request)
     {
         $request->validate([
@@ -210,5 +194,4 @@ class BarangController extends Controller
             return redirect()->back()->with('error', 'Gagal import: ' . $e->getMessage());
         }
     }
-
 }

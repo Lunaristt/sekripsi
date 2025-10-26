@@ -25,7 +25,9 @@ class Distributor extends Model
 
     public function barang()
     {
-        return $this->hasMany(Barang::class, 'ID_Distributor', 'ID_Distributor');
+        return $this->belongsToMany(Barang::class, 'barangdistributor', 'ID_Distributor', 'ID_Barang')
+            ->withPivot('Harga_Beli');
     }
+
 
 }

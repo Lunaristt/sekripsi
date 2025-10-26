@@ -64,7 +64,7 @@
                         <a class="nav-link text-white ps-4 py-1 {{ request()->is('laporan/pengeluaran') ? 'active' : '' }}"
                             href="#">📉 Laporan Pengeluaran</a>
                         <a class="nav-link text-white ps-4 py-1 {{ request()->is('laporan/pemasukan') ? 'active' : '' }}"
-                            href="laporan/pemasukan">📈 Laporan Pemasukan</a>
+                            href="{{route('laporan.pemasukan')}}">📈 Laporan Pemasukan</a>
                     </div>
                 </div>
 
@@ -79,7 +79,8 @@
                     </a>
                 </div>
 
-                <a class="nav-link fw-bold text-white {{ request()->is('pajak') ? 'active' : '' }}" href="pajak">
+                <a class="nav-link fw-bold text-white {{ request()->is('pajak') ? 'active' : '' }}"
+                    href="{{route('pajak.index')}}">
                     Faktur Pajak
                 </a>
 

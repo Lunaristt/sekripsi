@@ -63,15 +63,34 @@
 
                         <div class="row">
                             <div class="col-md-6 mb-3">
-                                <label class="form-label">Harga Barang*</label>
+                                <label class="form-label">Harga Jual*</label>
                                 <input type="number" class="form-control" name="Harga_Barang"
-                                    placeholder="Masukkan Harga Barang" required>
+                                    placeholder="Masukkan Harga Jual Barang" required>
                             </div>
 
                             <div class="col-md-6 mb-3">
                                 <label class="form-label">Stok Barang*</label>
                                 <input type="number" class="form-control" name="Stok_Barang"
                                     placeholder="Masukkan Stok Barang" required>
+                            </div>
+                        </div>
+
+                        <!-- 🔹 Tambahan Kolom Distributor dan Harga Beli -->
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Distributor*</label>
+                                <select class="form-control" name="ID_Distributor" required>
+                                    <option value="">Pilih Distributor</option>
+                                    @foreach($distributor as $d)
+                                        <option value="{{ $d->ID_Distributor }}">{{ $d->Nama_Distributor }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Harga Beli (Rp)*</label>
+                                <input type="number" class="form-control" name="Harga_Beli"
+                                    placeholder="Masukkan Harga Beli dari Distributor" required>
                             </div>
                         </div>
 
@@ -95,7 +114,7 @@
                             <div class="mb-3">
                                 <label class="form-label">Deskripsi Barang</label>
                                 <input type="text" class="form-control" name="Deskripsi_Barang"
-                                    placeholder="Masukkan deskripsi yang lebih spesifik, contoh: Warna, ukuran, bahan">
+                                    placeholder="Masukkan deskripsi lebih spesifik, contoh: Warna, ukuran, bahan">
                             </div>
                         </div>
 
@@ -110,7 +129,11 @@
                         <div class="mb-3">
                             <label class="form-label">Upload File Excel Barang</label>
                             <input type="file" name="file" class="form-control" accept=".xlsx,.xls" required>
-                            <div class="form-text">Pastikan format kolom sesuai template Excel sistem.</div>
+                            <div class="form-text">
+                                Pastikan format kolom sesuai template Excel sistem.<br>
+                                Contoh header:
+                                <code>Nama_Barang | Kategori | Merek | Harga_Jual | Stok | Distributor | Harga_Beli</code>
+                            </div>
                         </div>
                         <button type="submit" class="btn btn-success">📤 Upload Excel</button>
                     </form>

@@ -132,6 +132,10 @@ Route::prefix('pembelian')->group(function () {
     Route::delete('/remove-item/{id}', [PembelianController::class, 'removeItem'])->name('pembelian.removeItem');
     Route::post('/cancel', [PembelianController::class, 'cancel'])->name('pembelian.cancel');
     Route::post('/checkout', [PembelianController::class, 'checkout'])->name('pembelian.checkout');
+
+    // 🔹 Tambahan untuk AJAX filter barang berdasarkan distributor
+    Route::get('/barang-by-distributor/{id}', [PembelianController::class, 'getBarangByDistributor'])
+        ->name('pembelian.barangByDistributor');
 });
 
 
