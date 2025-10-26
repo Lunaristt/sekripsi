@@ -135,15 +135,15 @@
                 } else {
                     keranjang.forEach((item, i) => {
                         tbody.append(`
-                                <tr>
-                                    <td>${item.nama}</td>
-                                    <td>${item.deskripsi}</td>
-                                    <td>${item.jumlah}</td>
-                                    <td>Rp ${item.harga.toLocaleString('id-ID')}</td>
-                                    <td>Rp ${item.total.toLocaleString('id-ID')}</td>
-                                    <td><button class="btn btn-danger btn-sm" onclick="hapusBarang(${i})">Hapus</button></td>
-                                </tr>
-                            `);
+                                    <tr>
+                                        <td>${item.nama}</td>
+                                        <td>${item.deskripsi}</td>
+                                        <td>${item.jumlah}</td>
+                                        <td>Rp ${item.harga.toLocaleString('id-ID')}</td>
+                                        <td>Rp ${item.total.toLocaleString('id-ID')}</td>
+                                        <td><button class="btn btn-danger btn-sm" onclick="hapusBarang(${i})">Hapus</button></td>
+                                    </tr>
+                                `);
                     });
                 }
 

@@ -34,6 +34,7 @@ Route::prefix('barang')->name('barang.')->group(function () {
     Route::post('/tambahsatuan', [BarangController::class, 'satuan'])->name('tambahsatuan');
     Route::post('/import', [BarangController::class, 'import'])->name('import');
 
+
 });
 
 Route::prefix('dashboard')->group(function () {
