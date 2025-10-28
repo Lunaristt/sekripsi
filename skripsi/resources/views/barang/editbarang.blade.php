@@ -64,7 +64,7 @@
                 <select class="form-control" name="ID_Distributor" required>
                     <option value="">Pilih Distributor</option>
                     @foreach($distributor as $d)
-                        <option value="{{ $d->ID_Distributor }}" {{ $barang->ID_Distributor == $d->ID_Distributor ? 'selected' : '' }}>
+                        <option value="{{ $d->ID_Distributor }}" {{ isset($pivot) && $pivot->ID_Distributor == $d->ID_Distributor ? 'selected' : '' }}>
                             {{ $d->Nama_Distributor }}
                         </option>
                     @endforeach
@@ -73,10 +73,11 @@
 
             <div class="col-md-6 mb-3">
                 <label class="form-label">Harga Beli (Rp)*</label>
-                <input type="number" class="form-control" name="Harga_Beli" value="{{ $barang->Harga_Beli ?? '' }}"
+                <input type="number" class="form-control" name="Harga_Beli" value="{{ $pivot->Harga_Beli ?? '' }}"
                     placeholder="Masukkan Harga Beli dari Distributor" required>
             </div>
         </div>
+
 
         <div class="row">
             <div class="col-md-6 mb-3">

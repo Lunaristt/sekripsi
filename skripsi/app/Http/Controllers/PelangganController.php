@@ -10,7 +10,7 @@ class PelangganController extends Controller
     public function index()
     {
         $pelanggan = pelanggan::all();
-        return view('pelanggan/listpelanggan', compact('pelanggan'));
+        return view('pelanggan.listpelanggan', compact('pelanggan'));
     }
 
     public function create()

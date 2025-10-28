@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Penjualan;
+use App\Models\Pembelian;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 
@@ -28,21 +29,21 @@ class LaporanController extends Controller
         return view('laporan.pemasukan', compact('penjualan', 'bulan'));
     }
 
-    // public function pengeluaran(Request $request)
-//     {
-//         // Ambil bulan dari input, default bulan ini
-//         $bulan = $request->input('bulan', now()->format('Y-m'));
+    public function pengeluaran(Request $request)
+    {
+        // Ambil bulan dari input, default bulan ini
+        $bulan = $request->input('bulan', now()->format('Y-m'));
 
-    //         // Konversi jadi tanggal awal & akhir bulan
-//         $awal = Carbon::parse($bulan . '-01')->startOfMonth();
-//         $akhir = Carbon::parse($bulan . '-01')->endOfMonth();
+        // Konversi jadi tanggal awal & akhir bulan
+        $awal = Carbon::parse($bulan . '-01')->startOfMonth();
+        $akhir = Carbon::parse($bulan . '-01')->endOfMonth();
 
-    //         // Ambil data pembelian dalam range tanggal
-//         $pembelian = Pembelian::with('distributor')
-//             ->whereBetween('Tanggal', [$awal, $akhir])
-//             ->orderBy('Tanggal', 'asc')
-//             ->get();
+        // Ambil data pembelian dalam range tanggal
+        $pembelian = Pembelian::with('distributor')
+            ->whereBetween('Tanggal', [$awal, $akhir])
+            ->orderBy('Tanggal', 'asc')
+            ->get();
 
-    //         return view('laporan.pengeluaran', compact('pembelian', 'bulan'));
-//     }
+        return view('laporan.pengeluaran', compact('pembelian', 'bulan'));
+    }
 }

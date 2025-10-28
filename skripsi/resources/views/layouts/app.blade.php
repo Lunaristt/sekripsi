@@ -7,12 +7,12 @@
     <title>@yield('title', 'Toko Sumber Rejeki')</title>
 
     <!-- ✅ Bootstrap -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <!-- ✅ Vite (CSS & JS utama) -->
     @vite(['resources/css/style.css', 'resources/js/app.js'])
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 
     <!-- ✅ Tempat tambahan CSS per halaman -->
     @stack('styles')

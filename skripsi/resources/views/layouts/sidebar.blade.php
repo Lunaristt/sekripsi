@@ -60,7 +60,7 @@
                 📊 Laporan
             </a>
             <div class="collapse ms-3 {{ request()->is('laporan*') ? 'show' : '' }}" id="menuLaporan">
-                <a href="#" class="nav-link text-white">Laporan Pengeluaran</a>
+                <a href="{{ route('laporan.pengeluaran') }}" class="nav-link text-white">Laporan Pengeluaran</a>
                 <a href="{{ route('laporan.pemasukan') }}"
                     class="nav-link text-white {{ request()->is('laporan/pemasukan') ? 'fw-bold' : '' }}">Laporan
                     Pemasukan</a>
@@ -87,6 +87,23 @@
         <!-- 🧾 Pajak -->
         <a href="{{ route('pajak.index') }}"
             class="nav-link fw-bold text-white {{ request()->is('pajak*') ? 'text-warning' : '' }}">🧾 Faktur Pajak</a>
+        <!-- 👤 Pengguna (khusus Dashboard) -->
+        @if (request()->is('dashboard*'))
+            <div class="mb-2">
+                <a class="nav-link fw-bold text-white" data-bs-toggle="collapse" data-bs-target="#menuPengguna"
+                    role="button">
+                    👤 Pengguna
+                </a>
+                <div class="collapse ms-3 {{ request()->is('pengguna*') || request()->is('tambahpengguna') ? 'show' : '' }}"
+                    id="menuPengguna">
+                    <a href="{{ route('pengguna.index') }}"
+                        class="nav-link text-white {{ request()->is('pengguna*') ? 'fw-bold' : '' }}">Daftar Pengguna</a>
+                    <a href="{{ route('register') }}"
+                        class="nav-link text-white {{ request()->is('tambahpengguna') ? 'fw-bold' : '' }}">Tambah
+                        Pengguna</a>
+                </div>
+            </div>
+        @endif
 
     </nav>
 </div>

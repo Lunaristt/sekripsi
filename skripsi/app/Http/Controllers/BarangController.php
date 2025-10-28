@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Barang;
+use App\Models\barang;
 use App\Models\Kategoribarang;
 use App\Models\Satuanbarang;
 use App\Models\Distributor;
@@ -18,7 +18,7 @@ class BarangController extends Controller
      */
     public function index(Request $request)
     {
-        $query = Barang::with(['satuanbarang', 'distributor']); // tambah relasi distributor
+        $query = Barang::with(['satuanbarang', 'distributor']); // relasi satuan & distributor
 
         // 🔍 Fitur Search
         if ($request->has('search') && !empty($request->search)) {
@@ -31,21 +31,25 @@ class BarangController extends Controller
         }
 
         // 🔽 Fitur Sort
-        $sort = $request->get('sort', 'Nama_Barang');
-        $direction = $request->get('direction', 'asc');
+        $sort = $request->get('sort', 'Nama_Barang'); // default: Nama_Barang
+        $direction = $request->get('direction', 'asc'); // default: asc
 
+        // 🔹 Urutkan sesuai kolom
         if ($sort === 'Merek_Barang') {
             $query->orderBy('Merek_Barang', $direction);
         } else {
             $query->orderBy($sort, $direction);
         }
 
-        // 🔹 Ambil data
-        $barang = $query->get();
+        // ✅ Pagination: tampilkan 30 item per halaman + simpan query string
+        $barang = $query->paginate(30)->withQueryString();
+
+        // Ambil data satuan untuk dropdown (jika ada)
         $satuanbarang = Satuanbarang::all();
 
         return view('barang.barang', compact('barang', 'satuanbarang', 'sort', 'direction'));
     }
+
 
     /**
      * Tampilkan form tambah barang.
@@ -102,15 +106,18 @@ class BarangController extends Controller
     public function edit($id)
     {
         $barang = Barang::with('distributor')->findOrFail($id);
-        $kategoribarang = Kategoribarang::all();
-        $satuanbarang = Satuanbarang::all();
+        $kategoribarang = kategoribarang::all();
+        $satuanbarang = satuanbarang::all();
         $distributor = Distributor::all();
 
-        // Cek apakah barang sudah punya distributor (dari pivot)
-        $pivot = BarangDistributor::where('ID_Barang', $id)->first();
+        // Ambil data pivot (Harga_Beli) dari tabel barangdistributor
+        $pivot = \DB::table('barangdistributor')
+            ->where('ID_Barang', $barang->ID_Barang)
+            ->first();
 
         return view('barang.editbarang', compact('barang', 'kategoribarang', 'satuanbarang', 'distributor', 'pivot'));
     }
+
 
     /**
      * Update data barang + relasi distributor.
