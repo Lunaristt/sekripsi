@@ -10,10 +10,10 @@ class BarangDistributor extends Model
     use HasFactory;
 
     protected $table = 'barangdistributor';
-    public $incrementing = false; // karena pakai composite key
-    public $timestamps = false;   // tidak ada created_at / updated_at
+    protected $primaryKey = null; // karena composite key
+    public $incrementing = false;
+    public $timestamps = false;
 
-    protected $primaryKey = null; // composite PK
     protected $fillable = [
         'ID_Distributor',
         'ID_Barang',
@@ -22,7 +22,6 @@ class BarangDistributor extends Model
 
     /**
      * Relasi ke model Barang
-     * BarangDistributor -> Barang
      */
     public function barang()
     {
@@ -31,7 +30,6 @@ class BarangDistributor extends Model
 
     /**
      * Relasi ke model Distributor
-     * BarangDistributor -> Distributor
      */
     public function distributor()
     {

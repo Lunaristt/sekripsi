@@ -17,15 +17,15 @@ class PembelianController extends Controller
     public function index()
     {
         $pembelian = Pembelian::with([
-            'distributor',                    // relasi utama pembelian → distributor
-            'barang.distributor'              // relasi barang → distributor (pivot barangdistributor)
+            'distributor',
+            'barang.distributor'
         ])
+            ->where('Status', 'Diterima') // 🟢 Hanya tampilkan pembelian berstatus "Diterima"
             ->orderBy('Tanggal', 'desc')
             ->get();
 
-        return view('pembelian', compact('pembelian'));
+        return view('listpembelian', compact('pembelian'));
     }
-
 
     /**
      * Form pembelian baru / melanjutkan pembelian pending
@@ -35,32 +35,27 @@ class PembelianController extends Controller
         $barang = Barang::all();
         $distributor = Distributor::orderBy('Nama_Distributor')->get();
 
-        // Cek apakah ada pembelian aktif (Pending)
         $pembelianId = session('pembelian_id');
 
         if ($pembelianId) {
             $pembelian = Pembelian::find($pembelianId);
-
-            // Jika pembelian sudah dihapus atau tidak ditemukan → buat baru
             if (!$pembelian) {
                 $pembelian = Pembelian::create([
                     'Tanggal' => now(),
-                    'Tanggal_Jatuh_Tempo' => now()->addDays(60), // ✅ jatuh tempo 60 hari ke depan
+                    'Tanggal_Jatuh_Tempo' => now()->addDays(60),
                     'Harga_Keseluruhan' => 0,
                 ]);
                 session(['pembelian_id' => $pembelian->ID_Pembelian]);
             }
         } else {
-            // Buat pembelian baru
             $pembelian = Pembelian::create([
                 'Tanggal' => now(),
-                'Tanggal_Jatuh_Tempo' => now()->addDays(60), // ✅ jatuh tempo 60 hari ke depan
+                'Tanggal_Jatuh_Tempo' => now()->addDays(60),
                 'Harga_Keseluruhan' => 0,
             ]);
             session(['pembelian_id' => $pembelian->ID_Pembelian]);
         }
 
-        // Ambil daftar barang yang sudah dimasukkan
         $barangPembelian = BarangPembelian::where('ID_Pembelian', $pembelian->ID_Pembelian)
             ->with('barang')
             ->get();
@@ -132,47 +127,109 @@ class PembelianController extends Controller
      */
     public function checkout(Request $request)
     {
-        $pembelianId = session('pembelian_id');
-        $pembelian = Pembelian::findOrFail($pembelianId);
-
-        // 🟩 Ambil data keranjang dari input hidden (JSON)
-        $barangData = json_decode($request->barang, true);
-
-        // Validasi data
-        if (!$barangData || !is_array($barangData)) {
-            return back()->with('error', 'Data barang tidak valid atau kosong.');
+        if (!$request->ID_Distributor) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Distributor wajib dipilih!'
+            ]);
         }
 
-        // Hapus semua barang lama di pembelian ini (jika ada)
-        BarangPembelian::where('ID_Pembelian', $pembelianId)->delete();
+        $barangData = json_decode($request->barang, true);
+        if (!$barangData || count($barangData) === 0) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Tidak ada barang dalam pembelian!'
+            ]);
+        }
 
-        $totalHarga = 0;
+        DB::beginTransaction();
+        try {
+            $pembelianId = session('pembelian_id');
+            $pembelian = Pembelian::find($pembelianId);
 
-        // 🟩 Loop tiap item dari JSON dan simpan ke tabel barangpembelian
-        foreach ($barangData as $item) {
-            if (!isset($item['id'], $item['jumlah'], $item['harga']))
-                continue;
+            if (!$pembelian) {
+                $pembelian = Pembelian::create([
+                    'Tanggal' => now(),
+                    'Tanggal_Jatuh_Tempo' => $request->Tanggal_Jatuh_Tempo ?? now()->addDays(60),
+                    'ID_Distributor' => $request->ID_Distributor,
+                    'Harga_Keseluruhan' => 0,
+                    'Status' => 'Pending',
+                ]);
+                session(['pembelian_id' => $pembelian->ID_Pembelian]);
+            }
 
-            BarangPembelian::create([
-                'ID_Pembelian' => $pembelianId,
-                'ID_Barang' => $item['id'],
-                'Jumlah' => $item['jumlah'],
-                'Harga_Beli' => $item['harga'],
+            BarangPembelian::where('ID_Pembelian', $pembelian->ID_Pembelian)->delete();
+
+            $totalKeseluruhan = 0;
+
+            foreach ($barangData as $item) {
+                if (!isset($item['ID_Barang'], $item['Jumlah'], $item['Harga_Beli']))
+                    continue;
+
+                $barang = Barang::findOrFail($item['ID_Barang']);
+
+                BarangPembelian::create([
+                    'ID_Pembelian' => $pembelian->ID_Pembelian,
+                    'ID_Barang' => $barang->ID_Barang,
+                    'Jumlah' => $item['Jumlah'],
+                    'Harga_Beli' => $item['Harga_Beli'],
+                ]);
+
+                $barang->increment('Stok_Barang', $item['Jumlah']);
+                $totalKeseluruhan += ($item['Jumlah'] * $item['Harga_Beli']);
+            }
+
+            $pembelian->update([
+                'Harga_Keseluruhan' => $totalKeseluruhan,
+                'Status' => 'Diterima',
+                'Tanggal' => now(),
+                'Tanggal_Jatuh_Tempo' => $request->Tanggal_Jatuh_Tempo ?? now()->addDays(60),
+                'ID_Distributor' => $request->ID_Distributor,
             ]);
 
-            $totalHarga += $item['jumlah'] * $item['harga'];
+            DB::commit();
+            session()->forget('pembelian_id');
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Pembelian berhasil disimpan dan diterima!',
+                'pembelian_id' => $pembelian->ID_Pembelian,
+                'total' => $totalKeseluruhan
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            \Log::error('Checkout Pembelian Error:', ['error' => $e->getMessage()]);
+            return response()->json([
+                'success' => false,
+                'message' => 'Terjadi kesalahan: ' . $e->getMessage()
+            ]);
         }
+    }
 
-        // 🟩 Simpan total harga ke tabel pembelian
-        $pembelian->update([
-            'ID_Distributor' => $request->ID_Distributor,
-            'Tanggal_Jatuh_Tempo' => $request->Tanggal_Jatuh_Tempo,
-            'Harga_Keseluruhan' => $totalHarga,
+    public function getBarangByDistributor($id)
+    {
+        try {
+            $distributor = Distributor::findOrFail($id);
+
+            $barang = $distributor->barang()
+                ->select('barang.ID_Barang', 'barang.Nama_Barang', 'barang.Deskripsi_Barang')
+                ->get();
+
+            return response()->json($barang);
+        } catch (\Exception $e) {
+            \Log::error('Error getBarangByDistributor: ' . $e->getMessage());
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+
+    public function getHargaBeli($distributorId, $barangId)
+    {
+        $barangDistributor = \App\Models\BarangDistributor::where('ID_Distributor', $distributorId)
+            ->where('ID_Barang', $barangId)
+            ->first();
+
+        return response()->json([
+            'harga_beli' => $barangDistributor->Harga_Beli ?? 0
         ]);
-
-        // 🟩 Hapus session pembelian agar reset
-        session()->forget('pembelian_id');
-
-        return redirect()->route('pembelian.create')->with('success', 'Pembelian berhasil disimpan.');
     }
 }

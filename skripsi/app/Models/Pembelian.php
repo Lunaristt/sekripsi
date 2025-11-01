@@ -19,6 +19,7 @@ class Pembelian extends Model
         'Tanggal',
         'Harga_Keseluruhan',
         'Tanggal_Jatuh_Tempo',
+        'Status',
     ];
 
     /**

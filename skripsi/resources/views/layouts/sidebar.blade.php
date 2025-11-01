@@ -46,10 +46,13 @@
                 <a href="{{ route('transaksi.create') }}"
                     class="nav-link text-white {{ request()->is('transaksi*') ? 'fw-bold' : '' }}">Penjualan</a>
                 <a href="{{ route('statustransaksi.index') }}"
-                    class="nav-link text-white {{ request()->is('statustransaksi*') ? 'fw-bold' : '' }}">Status
-                    Transaksi</a>
+                    class="nav-link text-white {{ request()->is('statustransaksi*') ? 'fw-bold' : '' }}">List
+                    Penjualan</a>
                 <a href="{{ route('pembelian.create') }}"
                     class="nav-link text-white {{ request()->is('pembelian*') ? 'fw-bold' : '' }}">Pembelian</a>
+                <a href="{{ route('pembelian.index') }}"
+                    class="nav-link text-white {{ request()->is('pembelian*') ? 'fw-bold' : '' }}">List
+                    Pembelian</a>
             </div>
         </div>
 

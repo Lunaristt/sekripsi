@@ -149,11 +149,11 @@ class BarangController extends Controller
             'Besar_Satuan' => $request->Besar_Satuan,
         ]);
 
-        // Update pivot relasi BarangDistributor
-        BarangDistributor::updateOrCreate(
-            ['ID_Barang' => $id, 'ID_Distributor' => $request->ID_Distributor],
-            ['Harga_Beli' => $request->Harga_Beli]
-        );
+        if ($request->filled('ID_Distributor') && $request->filled('Harga_Beli')) {
+            $barang->distributor()->syncWithoutDetaching([
+                $request->ID_Distributor => ['Harga_Beli' => $request->Harga_Beli]
+            ]);
+        }
 
         return redirect()->route('barang.index')->with('success', 'Barang dan relasi distributor berhasil diperbarui!');
     }

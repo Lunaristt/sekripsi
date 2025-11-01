@@ -94,12 +94,12 @@
             </select>
         </div>
         <div class="mb-3">
-            <label for="Jumlah" class="form-label">Jumlah</label>
-            <input type="number" name="Jumlah" id="Jumlah" class="form-control" min="1" required>
-        </div>
-        <div class="mb-3">
             <label for="Harga_Beli" class="form-label">Harga Beli Satuan (Rp)</label>
             <input type="number" name="Harga_Beli" id="Harga_Beli" class="form-control" min="0" required>
+        </div>
+        <div class="mb-3">
+            <label for="Jumlah" class="form-label">Jumlah</label>
+            <input type="number" name="Jumlah" id="Jumlah" class="form-control" min="1" required>
         </div>
         <button type="submit" class="btn btn-primary">Tambah Barang</button>
     </form>
@@ -122,9 +122,233 @@
             <input type="hidden" name="ID_Distributor" id="checkoutDistributor">
             <input type="hidden" name="Tanggal_Jatuh_Tempo" id="checkoutTempo">
             <input type="hidden" name="barang" id="checkoutBarang">
+            <input type="hidden" name="Total_Harga" id="checkoutTotal">
             <input type="hidden" name="Nama_Salesman" id="checkoutSalesman">
             <input type="hidden" name="NoTelp_Salesman" id="checkoutTelpSalesman">
+            <input type="hidden" name="Status" id="checkoutStatus" value="Diterima"> {{-- 🟢 Tambahan --}}
             <button type="submit" class="btn btn-success">Selesaikan Pembelian</button>
         </form>
+
+
     </div>
 @endsection
+
+@push('scripts')
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+        $(document).ready(function () {
+
+            // =========================================
+            // 🟢 VARIABEL GLOBAL
+            // =========================================
+            let daftarBarang = [];
+            let totalKeseluruhan = 0;
+
+            // =========================================
+            // 🟢 Inisialisasi Select2 Distributor
+            // =========================================
+            $('#namaDistributor').select2({
+                placeholder: 'Pilih distributor...',
+                width: '100%'
+            });
+
+            // Ketika distributor dipilih
+            $('#namaDistributor').on('change', function () {
+                const distributorId = $(this).val();
+                const salesman = $(this).find(':selected').data('salesman') || '';
+                const telp = $(this).find(':selected').data('telp') || '';
+
+                $('#namaSalesman').val(salesman);
+                $('#noTelpSalesman').val(telp);
+                $('#checkoutDistributor').val(distributorId);
+                $('#checkoutSalesman').val(salesman);
+                $('#checkoutTelpSalesman').val(telp);
+
+                // Reset dropdown barang
+                $('#ID_Barang').html('<option value="">-- Memuat data barang... --</option>');
+
+                // Ambil daftar barang milik distributor
+                if (distributorId) {
+                    $.get(`/pembelian/barang-by-distributor/${distributorId}`, function (data) {
+                        let options = '<option value="">-- Pilih Barang --</option>';
+                        if (data.length > 0) {
+                            data.forEach(function (b) {
+                                options += `<option value="${b.ID_Barang}">
+                                                                                ${b.Nama_Barang} - ${b.Deskripsi_Barang ?? ''}
+                                                                            </option>`;
+                            });
+                        } else {
+                            options = '<option value="">Distributor ini belum memiliki barang.</option>';
+                        }
+                        $('#ID_Barang').html(options);
+                    }).fail(function () {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Gagal memuat data',
+                            text: 'Terjadi kesalahan saat mengambil data barang dari server.'
+                        });
+                    });
+                } else {
+                    $('#ID_Barang').html('<option value="">-- Pilih Barang --</option>');
+                }
+            });
+
+            // =========================================
+            // 🟢 Autofill Harga Beli per Barang
+            // =========================================
+            $('#ID_Barang').on('change', function () {
+                const barangId = $(this).val();
+                const distributorId = $('#namaDistributor').val();
+
+                if (barangId && distributorId) {
+                    $.get(`/pembelian/harga-beli/${distributorId}/${barangId}`, function (data) {
+                        if (data.harga_beli && data.harga_beli > 0) {
+                            $('#Harga_Beli').val(data.harga_beli);
+                        } else {
+                            $('#Harga_Beli').val('');
+                            Swal.fire({
+                                icon: 'info',
+                                title: 'Harga beli belum terdaftar',
+                                text: 'Distributor ini belum memiliki harga beli untuk barang tersebut.'
+                            });
+                        }
+                    }).fail(function () {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Gagal mengambil harga beli',
+                            text: 'Terjadi kesalahan pada server saat mengambil data harga beli.'
+                        });
+                    });
+                } else {
+                    $('#Harga_Beli').val('');
+                }
+            });
+
+            // =========================================
+            // 🟢 Tambahkan Barang ke Tabel & Simpan ke Array
+            // =========================================
+            const form = $('#formAddItem');
+            const listBarang = $('#listBarang');
+            const grandTotal = $('#grandTotal');
+
+            form.on('submit', function (e) {
+                e.preventDefault();
+
+                const barangSelect = $('#ID_Barang');
+                const idBarang = barangSelect.val();
+                const namaBarang = barangSelect.find(':selected').text().split('-')[0].trim();
+                const deskripsi = barangSelect.find(':selected').text().split('-')[1]?.trim() || '-';
+                const jumlah = parseInt($('#Jumlah').val());
+                const hargaBeli = parseInt($('#Harga_Beli').val());
+                const totalHarga = jumlah * hargaBeli;
+
+                if (!idBarang || jumlah <= 0 || hargaBeli <= 0) {
+                    Swal.fire('Gagal', 'Mohon lengkapi semua data barang', 'error');
+                    return;
+                }
+
+                // 🧾 Simpan ke array daftarBarang
+                daftarBarang.push({
+                    ID_Barang: idBarang,
+                    Nama_Barang: namaBarang,
+                    Deskripsi: deskripsi,
+                    Jumlah: jumlah,
+                    Harga_Beli: hargaBeli,
+                    Total_Harga: totalHarga
+                });
+
+                // Update total keseluruhan
+                totalKeseluruhan += totalHarga;
+                $('#checkoutBarang').val(JSON.stringify(daftarBarang));
+                $('#checkoutTotal').val(totalKeseluruhan);
+
+                // Hapus baris "Belum ada barang"
+                $('#emptyRow').remove();
+
+                // Tambahkan baris visual ke tabel
+                const newRow = $(`
+                                                    <tr class="align-middle text-center">
+                                                        <td class="text-start fw-semibold">${namaBarang}</td>
+                                                        <td>${deskripsi}</td>
+                                                        <td>${jumlah}</td>
+                                                        <td class="text-end">Rp ${hargaBeli.toLocaleString()}</td>
+                                                        <td class="text-end fw-bold">Rp ${totalHarga.toLocaleString()}</td>
+                                                        <td>
+                                                            <button type="button" class="btn btn-sm btn-danger btnHapus">
+                                                                <i class="bi bi-trash"></i> Hapus
+                                                            </button>
+                                                        </td>
+                                                    </tr>
+                                                `);
+
+                listBarang.append(newRow);
+                grandTotal.text(`Total: Rp ${totalKeseluruhan.toLocaleString()}`);
+                form.trigger('reset');
+
+                // 🔹 Event tombol hapus baris
+                newRow.find('.btnHapus').on('click', function () {
+                    newRow.remove();
+                    totalKeseluruhan -= totalHarga;
+                    daftarBarang = daftarBarang.filter(item => item.ID_Barang !== idBarang);
+
+                    $('#checkoutBarang').val(JSON.stringify(daftarBarang));
+                    $('#checkoutTotal').val(totalKeseluruhan);
+
+                    grandTotal.text(`Total: Rp ${totalKeseluruhan.toLocaleString()}`);
+
+                    if (listBarang.children('tr').length === 0) {
+                        listBarang.html(`
+                                                            <tr id="emptyRow">
+                                                                <td colspan="6" class="text-center text-muted py-3">
+                                                                    Belum ada barang dalam pembelian
+                                                                </td>
+                                                            </tr>
+                                                        `);
+                    }
+                });
+            });
+            // =========================================
+            // 🟢 Saat tombol "Selesaikan Pembelian" ditekan
+            // =========================================
+            $('#checkoutForm').on('submit', function (e) {
+                e.preventDefault();
+
+                const distributorId = $('#namaDistributor').val();
+                if (!distributorId) {
+                    Swal.fire('Gagal', 'Pilih distributor terlebih dahulu!', 'warning');
+                    return;
+                }
+
+                // 🟢 Pastikan hidden input terisi
+                if (!$('#checkoutDistributor').val()) {
+                    $('#checkoutDistributor').val(distributorId);
+                }
+
+                $('#checkoutTempo').val($('#tanggalJatuhTempo').val());
+                const form = $(this);
+                const formData = form.serialize();
+
+                $.post(form.attr('action'), formData, function (response) {
+                    if (response.success) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Berhasil!',
+                            text: `${response.message} (Total: Rp ${response.total.toLocaleString()})`,
+                            confirmButtonText: 'OK'
+                        }).then(() => {
+                            window.location.href = '/pembelian/create';
+                        });
+                    } else {
+                        Swal.fire('Gagal', response.message, 'error');
+                    }
+                }).fail(() => {
+                    Swal.fire('Error', 'Terjadi kesalahan saat menyimpan pembelian.', 'error');
+                });
+            });
+
+        });
+    </script>
+@endpush

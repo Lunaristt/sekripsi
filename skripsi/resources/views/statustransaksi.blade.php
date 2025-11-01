@@ -1,9 +1,9 @@
 @extends('layouts.app')
 
-@section('title', 'Status Transaksi - Toko Sumber Rejeki')
+@section('title', 'Status Penjualan - Toko Sumber Rejeki')
 
 @section('content')
-    <h4 class="mb-4 fw-bold">Status Transaksi</h4>
+    <h4 class="mb-4 fw-bold">Status Penjualan</h4>
 
     {{-- ✅ Notifikasi sukses --}}
     @if(session('success'))

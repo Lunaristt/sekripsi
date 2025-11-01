@@ -38,12 +38,14 @@ class LaporanController extends Controller
         $awal = Carbon::parse($bulan . '-01')->startOfMonth();
         $akhir = Carbon::parse($bulan . '-01')->endOfMonth();
 
-        // Ambil data pembelian dalam range tanggal
+        // Ambil data pembelian yang statusnya Diterima dalam range tanggal
         $pembelian = Pembelian::with('distributor')
+            ->where('Status', 'Diterima') // 🟢 Tambahan: hanya tampilkan yang diterima
             ->whereBetween('Tanggal', [$awal, $akhir])
             ->orderBy('Tanggal', 'asc')
             ->get();
 
         return view('laporan.pengeluaran', compact('pembelian', 'bulan'));
     }
+
 }

@@ -101,4 +101,19 @@ class DistributorController extends Controller
     {
         return response()->download(public_path('template_distributor.xlsx'));
     }
+    /**
+     * Mengembalikan semua data distributor dalam bentuk JSON (untuk autofill di form pembelian)
+     */
+    public function getAll()
+    {
+        $distributors = Distributor::select(
+            'id',
+            'Nama_Distributor',
+            'Nama_Salesman',
+            'Notelp_Salesman'
+        )->orderBy('Nama_Distributor', 'asc')->get();
+
+        return response()->json($distributors);
+    }
+
 }

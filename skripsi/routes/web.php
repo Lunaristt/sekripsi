@@ -13,6 +13,7 @@ use App\Http\Controllers\TransaksiController;
 use App\Http\Controllers\LaporanController;
 use App\Http\Controllers\PajakController;
 use App\Http\Controllers\PenggunaController;
+use App\Http\Controllers\HomeController;
 
 /*
 |--------------------------------------------------------------------------
@@ -38,7 +39,7 @@ Route::middleware(['authcheck'])->group(function () {
     // 🏠 Dashboard
     Route::prefix('dashboard')->group(function () {
         Route::get('/', fn() => view('dashboard'))->name('dashboard');
-        Route::get('/data', [DashboardController::class, 'dashboardData'])->name('dashboard.data');
+        Route::get('/dashboard-data', [DashboardController::class, 'dashboardData'])->name('dashboard.data');
     });
 
     // 👤 Pengguna
@@ -52,7 +53,7 @@ Route::middleware(['authcheck'])->group(function () {
     // 📦 Barang
     Route::prefix('barang')->name('barang.')->group(function () {
         Route::get('/', [BarangController::class, 'index'])->name('index');
-        Route::post('/', [BarangController::class, 'store'])->name('store');
+        Route::post('/', action: [BarangController::class, 'store'])->name('store');
         Route::get('/barang/{id}/edit', [BarangController::class, 'edit'])->name('edit');
         Route::put('/barang/{id}', [BarangController::class, 'update'])->name('update');
         Route::post('/barang/{id}/tambah-stok', [BarangController::class, 'tambahStok'])->name('tambahStok');
@@ -60,6 +61,7 @@ Route::middleware(['authcheck'])->group(function () {
         Route::post('/tambahkategori', [BarangController::class, 'kategori'])->name('tambahkategori');
         Route::post('/tambahsatuan', [BarangController::class, 'satuan'])->name('tambahsatuan');
         Route::post('/import', [BarangController::class, 'import'])->name('import');
+
     });
 
     // 👥 Pelanggan
@@ -91,7 +93,8 @@ Route::middleware(['authcheck'])->group(function () {
     Route::get('tambahkategori', fn() => view('tambahmasterdata/tambahkategori'))->name('tambahkategori');
     Route::get('/tambahsatuan', fn() => view('tambahmasterdata/tambahsatuan'))->name('tambahsatuan');
     Route::get('/tambahdistributor', fn() => view('distributor/tambahdistributor'))->name('tambahdistributor');
-    Route::get('/home', fn() => view('home'))->name('home');
+    Route::get('/home', [HomeController::class, 'index'])->name('home');
+
 
     // 🧱 Tambah Barang
     Route::prefix('tambahbarang')->name('tambahbarang.')->group(function () {
@@ -130,6 +133,8 @@ Route::middleware(['authcheck'])->group(function () {
         Route::delete('/delete/{id}', [DistributorController::class, 'destroy'])->name('destroy');
         Route::post('/import', [DistributorController::class, 'import'])->name('import');
         Route::get('/template', [DistributorController::class, 'downloadTemplate'])->name('downloadTemplate');
+        Route::get('/distributor/all', [DistributorController::class, 'getAll'])->name('all');
+
     });
 
     // 🧾 Pembelian
@@ -140,6 +145,9 @@ Route::middleware(['authcheck'])->group(function () {
         Route::delete('/remove-item/{id}', [PembelianController::class, 'removeItem'])->name('pembelian.removeItem');
         Route::post('/cancel', [PembelianController::class, 'cancel'])->name('pembelian.cancel');
         Route::post('/checkout', [PembelianController::class, 'checkout'])->name('pembelian.checkout');
+        Route::get('/barang-by-distributor/{id}', [PembelianController::class, 'getBarangByDistributor']);
+        Route::get('/harga-beli/{distributorId}/{barangId}', [PembelianController::class, 'getHargaBeli']);
+
     });
 
     Route::get('/pembelian', fn() => view('pembelian'))->name('pembelian');
