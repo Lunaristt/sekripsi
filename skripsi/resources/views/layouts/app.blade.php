@@ -44,5 +44,16 @@
     <!-- ✅ Tempat script tambahan per halaman -->
     @stack('scripts')
 </body>
+<script>
+    document.addEventListener('keydown', function (e) {
+        if (e.key === 'F12' ||
+            (e.ctrlKey && e.shiftKey && e.key === 'I') ||
+            (e.ctrlKey && e.shiftKey && e.key === 'J') ||
+            (e.ctrlKey && e.key === 'U')) {
+            e.preventDefault();
+            alert("🔒 Inspect Element dinonaktifkan di halaman ini.");
+        }
+    });
+</script>
 
 </html>

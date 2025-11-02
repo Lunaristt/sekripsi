@@ -8,9 +8,8 @@ use Illuminate\Support\Facades\Hash;
 
 class AuthController extends Controller
 {
-
     /**
-     * Tampilkan halaman login.
+     * 🔹 Tampilkan halaman login
      */
     public function showLogin()
     {
@@ -18,7 +17,7 @@ class AuthController extends Controller
     }
 
     /**
-     * Proses login pengguna.
+     * 🔹 Proses login pengguna
      */
     public function login(Request $request)
     {
@@ -28,38 +27,46 @@ class AuthController extends Controller
             'password' => 'required'
         ]);
 
-        // Cari user berdasarkan Nama
+        // Cari pengguna berdasarkan Nama
         $user = Pengguna::where('Nama', $request->nama)->first();
 
-        // Cek apakah user ada dan password cocok
+        // Cek keberadaan user dan password
         if ($user && Hash::check($request->password, $user->Password)) {
-            // Simpan data ke session
+
+            // 🔒 Cek status akun
+            if ($user->Status !== 'approved') {
+                // Arahkan ke halaman akses-terbatas tanpa sidebar
+                return view('aksesterbatas', [
+                    'nama' => $user->Nama,
+                    'status' => $user->Status,
+                ]);
+            }
+
+            // ✅ Jika sudah approved, simpan data ke session
             session([
                 'user_id' => $user->ID_Pengguna,
                 'nama' => $user->Nama,
                 'role' => $user->Role,
             ]);
 
-            // Redirect sesuai role
-            if ($user->Role === 'admin') {
+            // ✅ Redirect sesuai role
+            if (strtolower($user->Role) === 'admin') {
                 return redirect()->route('dashboard')->with('success', 'Selamat datang Admin!');
             } else {
                 return redirect()->route('home')->with('success', 'Selamat datang, ' . $user->Nama . '!');
             }
         }
 
-        // Kalau gagal login
+        // ❌ Jika gagal login
         return redirect()->route('login')->with('error', 'Username atau Password salah!');
     }
 
     /**
-     * Logout dan hapus session.
+     * 🔹 Logout pengguna & hapus session
      */
     public function logout(Request $request)
     {
-        // Hapus semua session
         $request->session()->flush();
-
         return redirect()->route('login')->with('success', 'Anda telah logout.');
     }
 }

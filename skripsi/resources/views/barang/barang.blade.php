@@ -190,7 +190,7 @@
 
   <!-- 🔢 Pagination -->
   <div class="d-flex justify-content-center mt-4">
-    {{ $barang->links('pagination::bootstrap-5') }}
+    {{ $barang->links('pagination::custom') }}
   </div>
 @endsection
 

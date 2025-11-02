@@ -14,8 +14,8 @@
 
     <!-- 🔍 Form Pencarian -->
     <form action="{{ route('pengguna.index') }}" method="GET" class="mb-3">
-        <div class="input-group">
-            <input type="text" name="search" class="form-control" placeholder="Cari nama atau email..."
+        <div class="input-group" style="max-width: 400px;">
+            <input type="text" name="search" class="form-control" placeholder="Cari nama atau role..."
                 value="{{ request('search') }}">
             <button class="btn btn-outline-secondary" type="submit">Cari</button>
         </div>
@@ -30,6 +30,7 @@
                     <th>Nama</th>
                     <th>Nomor Telepon</th>
                     <th>Role</th>
+                    <th>Status</th>
                     <th>Aksi</th>
                 </tr>
             </thead>
@@ -38,19 +39,49 @@
                     <tr>
                         <td>{{ $loop->iteration }}</td>
                         <td>{{ $user->Nama }}</td>
-                        <td>{{ $user->No_Telp }}</td>
+                        <td>{{ $user->No_Telp ?? '-' }}</td>
                         <td>
-                            @if ($user->Role === 'Admin')
-                                <span class="badge bg-danger">Admin</span>
+                            <!-- 🔽 Dropdown ubah role -->
+                            <form action="{{ route('pengguna.updateRole', $user->ID_Pengguna) }}" method="POST"
+                                class="d-inline">
+                                @csrf
+                                @method('PATCH')
+                                <select name="Role" class="form-select form-select-sm d-inline-block w-auto"
+                                    onchange="this.form.submit()">
+                                    <option value="User" {{ $user->Role === 'User' ? 'selected' : '' }}>User</option>
+                                    <option value="Admin" {{ $user->Role === 'Admin' ? 'selected' : '' }}>Admin</option>
+                                </select>
+                            </form>
+                        </td>
+                        <td>
+                            @if ($user->Status === 'approved')
+                                <span class="badge bg-success">Approved</span>
                             @else
-                                <span class="badge bg-primary">User</span>
+                                <span class="badge bg-secondary">Restricted</span>
                             @endif
                         </td>
                         <td>
-                            <a href="" class="btn btn-warning btn-sm text-black">
+                            <!-- 🔘 Tombol Approve / Restrict -->
+                            @if ($user->Status === 'restricted')
+                                <form action="{{ route('pengguna.approve', $user->ID_Pengguna) }}" method="POST" class="d-inline">
+                                    @csrf
+                                    <button class="btn btn-success btn-sm">✔️ Approve</button>
+                                </form>
+                            @else
+                                <form action="{{ route('pengguna.restrict', $user->ID_Pengguna) }}" method="POST" class="d-inline">
+                                    @csrf
+                                    <button class="btn btn-warning btn-sm text-black">🚫 Restrict</button>
+                                </form>
+                            @endif
+
+                            <!-- ✏️ Edit -->
+                            <a href="{{ route('pengguna.edit', $user->ID_Pengguna) }}" class="btn btn-outline-primary btn-sm">
                                 ✏️ Edit
                             </a>
-                            <form action="" method="POST" class="d-inline" onsubmit="return confirm('Hapus pengguna ini?')">
+
+                            <!-- 🗑️ Hapus -->
+                            <form action="{{ route('pengguna.destroy', $user->ID_Pengguna) }}" method="POST" class="d-inline"
+                                onsubmit="return confirm('Hapus pengguna ini?')">
                                 @csrf
                                 @method('DELETE')
                                 <button type="submit" class="btn btn-danger btn-sm">🗑️ Hapus</button>

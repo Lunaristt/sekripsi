@@ -43,12 +43,22 @@ Route::middleware(['authcheck'])->group(function () {
     });
 
     // 👤 Pengguna
+
     Route::prefix('pengguna')->name('pengguna.')->group(function () {
+        // 📋 List & CRUD dasar
         Route::get('/', [PenggunaController::class, 'index'])->name('index');
         Route::get('/create', [PenggunaController::class, 'create'])->name('create');
         Route::get('/{id}/edit', [PenggunaController::class, 'edit'])->name('edit');
         Route::delete('/{id}', [PenggunaController::class, 'destroy'])->name('destroy');
+
+        // ✅ Tambahan fitur approval system
+        Route::post('/{id}/approve', [PenggunaController::class, 'approve'])->name('approve');
+        Route::post('/{id}/restrict', [PenggunaController::class, 'restrict'])->name('restrict');
+
+        // ✅ Fitur dropdown ubah role
+        Route::patch('/{id}/update-role', [PenggunaController::class, 'updateRole'])->name('updateRole');
     });
+
 
     // 📦 Barang
     Route::prefix('barang')->name('barang.')->group(function () {
