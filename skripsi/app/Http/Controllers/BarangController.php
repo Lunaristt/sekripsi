@@ -201,4 +201,34 @@ class BarangController extends Controller
             return redirect()->back()->with('error', 'Gagal import: ' . $e->getMessage());
         }
     }
+
+    public function kategori(Request $request)
+    {
+        $request->validate([
+            'Kategori_Barang' => 'required|string|max:100|unique:kategoribarang,Kategori_Barang',
+        ]);
+
+        KategoriBarang::create([
+            'Kategori_Barang' => $request->Kategori_Barang,
+        ]);
+
+        return redirect()->back()->with('success', 'Kategori baru berhasil ditambahkan!');
+    }
+
+    /**
+     * Tambah satuan baru.
+     */
+    public function satuan(Request $request)
+    {
+        $request->validate([
+            'Nama_Satuan' => 'required|string|max:50|unique:satuanbarang,Nama_Satuan',
+            'Besar_Satuan' => 'nullable|string|max:50',
+        ]);
+
+        SatuanBarang::create([
+            'Nama_Satuan' => $request->Nama_Satuan
+        ]);
+
+        return redirect()->back()->with('success', 'Satuan baru berhasil ditambahkan!');
+    }
 }

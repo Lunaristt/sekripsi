@@ -5,18 +5,52 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Penjualan;
 use App\Models\Pembelian;
+use App\Models\Barang;
+use App\Models\Pelanggan;
+use App\Models\Distributor;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 
 class DashboardController extends Controller
 {
+    /**
+     * 🏠 Menampilkan halaman utama dashboard (untuk card ringkasan)
+     */
+    public function index()
+    {
+        // 📦 Jumlah total barang
+        $totalBarang = Barang::count();
+
+        // 👥 Jumlah total pelanggan
+        $totalPelanggan = Pelanggan::count();
+
+        // 🚚 Jumlah total distributor
+        $totalDistributor = Distributor::count();
+
+        // 💰 Total pendapatan dari penjualan hari ini (status selesai)
+        $pendapatanHariIni = Penjualan::where('Status', 'Selesai')
+            ->whereDate('Tanggal', Carbon::today())
+            ->sum('Harga_Keseluruhan');
+
+        // 📤 Kirim semua data ke tampilan dashboard
+        return view('dashboard', compact(
+            'totalBarang',
+            'totalPelanggan',
+            'totalDistributor',
+            'pendapatanHariIni'
+        ));
+    }
+
+
+    /**
+     * 📊 Digunakan oleh AJAX untuk memuat data Chart.js (penjualan & pembelian)
+     */
     public function dashboardData(Request $request)
     {
-        // Ambil filter dari dropdown (default = bulan)
         $filter = $request->get('filter', 'bulan');
 
         // ==============================
-        // 🟩 DATA PENJUALAN (masih gunakan filter Status = Selesai)
+        // 🟩 DATA PENJUALAN
         // ==============================
         switch ($filter) {
             case 'bulan':
@@ -31,7 +65,10 @@ class DashboardController extends Controller
                     ->orderByRaw('YEAR(Tanggal) ASC, MONTH(Tanggal) ASC')
                     ->get();
 
-                $labels = $penjualan->map(fn($item) => Carbon::create()->month($item->Bulan)->locale('id')->translatedFormat('F'));
+                $labels = $penjualan->map(
+                    fn($item) =>
+                    Carbon::create()->month($item->Bulan)->locale('id')->translatedFormat('F')
+                );
                 break;
 
             case 'minggu':
@@ -80,7 +117,7 @@ class DashboardController extends Controller
         $penjualanValues = $penjualan->pluck('Total_Omzet');
 
         // ==============================
-        // 🟦 DATA PEMBELIAN (❌ TANPA FILTER STATUS)
+        // 🟦 DATA PEMBELIAN
         // ==============================
         switch ($filter) {
             case 'bulan':
@@ -132,7 +169,7 @@ class DashboardController extends Controller
         $pembelianValues = $pembelian->pluck('Total_Pembelian');
 
         // ==============================
-        // 🟢 RETURN JSON KE FRONTEND
+        // 🟢 RETURN JSON UNTUK CHART
         // ==============================
         return response()->json([
             'labels' => $labels,

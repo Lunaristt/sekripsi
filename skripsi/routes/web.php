@@ -38,7 +38,7 @@ Route::middleware(['authcheck'])->group(function () {
 
     // 🏠 Dashboard
     Route::prefix('dashboard')->group(function () {
-        Route::get('/', fn() => view('dashboard'))->name('dashboard');
+        Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
         Route::get('/dashboard-data', [DashboardController::class, 'dashboardData'])->name('dashboard.data');
     });
 
@@ -71,7 +71,6 @@ Route::middleware(['authcheck'])->group(function () {
         Route::post('/tambahkategori', [BarangController::class, 'kategori'])->name('tambahkategori');
         Route::post('/tambahsatuan', [BarangController::class, 'satuan'])->name('tambahsatuan');
         Route::post('/import', [BarangController::class, 'import'])->name('import');
-
     });
 
     // 👥 Pelanggan
@@ -157,7 +156,6 @@ Route::middleware(['authcheck'])->group(function () {
         Route::post('/checkout', [PembelianController::class, 'checkout'])->name('pembelian.checkout');
         Route::get('/barang-by-distributor/{id}', [PembelianController::class, 'getBarangByDistributor']);
         Route::get('/harga-beli/{distributorId}/{barangId}', [PembelianController::class, 'getHargaBeli']);
-
     });
 
     Route::get('/pembelian', fn() => view('pembelian'))->name('pembelian');

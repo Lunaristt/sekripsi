@@ -2,7 +2,21 @@
 
 @section('title', 'Dashboard - Toko Sumber Rejeki')
 
+@push('styles')
+  <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+  <style>
+    .stat-card {
+      transition: transform 0.2s ease-in-out;
+    }
+
+    .stat-card:hover {
+      transform: translateY(-3px);
+    }
+  </style>
+@endpush
+
 @section('content')
+  <!-- 🧾 Judul -->
   <div class="d-flex justify-content-between align-items-center mb-3 border-bottom pb-2">
     <h2 class="h4">📊 Dashboard Omzet & Pembelian</h2>
 
@@ -15,6 +29,55 @@
     </select>
   </div>
 
+  <!-- 🔹 Statistik Ringkasan -->
+  <div class="row mb-4">
+
+    <!-- 📦 Produk -->
+    <div class="col-md-2">
+      <div class="card text-center shadow-sm stat-card">
+        <div class="card-body">
+          <i class="fa-solid fa-box fs-1 text-success mb-2"></i>
+          <h6 class="fw-bold text-muted">Produk</h6>
+          <h4 class="fw-bold text-success">{{ $totalBarang }}</h4>
+        </div>
+      </div>
+    </div>
+
+    <!-- 👥 Pelanggan -->
+    <div class="col-md-2">
+      <div class="card text-center shadow-sm stat-card">
+        <div class="card-body">
+          <i class="fa-solid fa-users fs-1 text-warning mb-2"></i>
+          <h6 class="fw-bold text-muted">Pelanggan</h6>
+          <h4 class="fw-bold text-warning">{{ $totalPelanggan }}</h4>
+        </div>
+      </div>
+    </div>
+
+    <!-- 🚚 Distributor -->
+    <div class="col-md-2">
+      <div class="card text-center shadow-sm stat-card">
+        <div class="card-body">
+          <i class="fa-solid fa-truck fs-1 text-info mb-2"></i>
+          <h6 class="fw-bold text-muted">Distributor</h6>
+          <h4 class="fw-bold text-info">{{ $totalDistributor }}</h4>
+        </div>
+      </div>
+    </div>
+
+    <!-- 💰 Pendapatan Hari Ini -->
+    <div class="col">
+      <div class="card text-center shadow-sm stat-card">
+        <div class="card-body">
+          <i class="fa-solid fa-money-bill-wave fs-1 text-danger mb-2"></i>
+          <h6 class="fw-bold text-muted">Pendapatan Hari Ini</h6>
+          <h4 class="fw-bold text-danger">Rp {{ number_format($pendapatanHariIni ?? 0, 0, ',', '.') }}</h4>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 📊 Grafik -->
   <div class="row">
     <!-- 📈 Grafik Penjualan -->
     <div class="col-md-6">
@@ -51,11 +114,11 @@
           const ctxPenjualan = document.getElementById('chartPenjualan').getContext('2d');
           const ctxPembelian = document.getElementById('chartPembelian').getContext('2d');
 
-          // Hapus chart lama kalau sudah ada
+          // Hapus chart lama
           if (chartPenjualan) chartPenjualan.destroy();
           if (chartPembelian) chartPembelian.destroy();
 
-          // 🔹 Chart Omzet Penjualan
+          // 🔹 Chart Penjualan
           chartPenjualan = new Chart(ctxPenjualan, {
             type: (filter === 'tahun' || filter === 'bulan') ? 'bar' : 'line',
             data: {
@@ -89,7 +152,7 @@
             }
           });
 
-          // 🔹 Chart Total Pembelian
+          // 🔹 Chart Pembelian
           chartPembelian = new Chart(ctxPembelian, {
             type: (filter === 'tahun' || filter === 'bulan') ? 'bar' : 'line',
             data: {

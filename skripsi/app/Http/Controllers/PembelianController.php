@@ -20,7 +20,6 @@ class PembelianController extends Controller
             'distributor',
             'barang.distributor'
         ])
-            ->where('Status', 'Diterima') // 🟢 Hanya tampilkan pembelian berstatus "Diterima"
             ->orderBy('Tanggal', 'desc')
             ->get();
 
@@ -109,17 +108,22 @@ class PembelianController extends Controller
     /**
      * Batalkan transaksi pembelian
      */
-    public function cancel()
+    public function cancel(Request $request)
     {
-        $pembelianId = session('pembelian_id');
+        $pembelianId = $request->id ?? session('pembelian_id');
 
         if ($pembelianId) {
-            BarangPembelian::where('ID_Pembelian', $pembelianId)->delete();
-            Pembelian::where('ID_Pembelian', $pembelianId)->delete();
+            Pembelian::where('ID_Pembelian', $pembelianId)
+                ->update(['Status' => 'Dikembalikan']);
+
+            // Opsional: hapus item pembeliannya
+            // BarangPembelian::where('ID_Pembelian', $pembelianId)->delete();
+
             session()->forget('pembelian_id');
         }
 
-        return redirect()->route('pembelian.index')->with('error', 'Transaksi pembelian dibatalkan.');
+        return redirect()->route('pembelian.index')
+            ->with('error', 'Transaksi pembelian telah dibatalkan.');
     }
 
     /**
