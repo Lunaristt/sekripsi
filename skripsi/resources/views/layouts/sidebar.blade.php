@@ -8,14 +8,21 @@
             </a>
             <div class="collapse ms-3 {{ request()->is('barang*') || request()->is('tambahbarang*') || request()->is('tambahkategori') || request()->is('tambahsatuan') ? 'show' : '' }}"
                 id="menuBarang">
+
+                <!-- Semua role bisa -->
                 <a href="{{ route('barang.index') }}"
                     class="nav-link text-white {{ request()->is('barang*') ? 'fw-bold' : '' }}">Lihat Stok</a>
+
                 <a href="{{ route('tambahbarang.create') }}"
                     class="nav-link text-white {{ request()->is('tambahbarang*') ? 'fw-bold' : '' }}">Barang Baru</a>
-                <a href="{{ route('tambahkategori') }}"
-                    class="nav-link text-white {{ request()->is('tambahkategori') ? 'fw-bold' : '' }}">Kategori</a>
-                <a href="{{ route('tambahsatuan') }}"
-                    class="nav-link text-white {{ request()->is('tambahsatuan') ? 'fw-bold' : '' }}">Satuan</a>
+
+                <!-- Hanya Admin -->
+                @if (session('role') === 'Admin')
+                    <a href="{{ route('tambahkategori') }}"
+                        class="nav-link text-white {{ request()->is('tambahkategori') ? 'fw-bold' : '' }}">Kategori</a>
+                    <a href="{{ route('tambahsatuan') }}"
+                        class="nav-link text-white {{ request()->is('tambahsatuan') ? 'fw-bold' : '' }}">Satuan</a>
+                @endif
             </div>
         </div>
 
@@ -29,9 +36,13 @@
                 id="menuPelanggan">
                 <a href="{{ route('pelanggan.index') }}"
                     class="nav-link text-white {{ request()->is('pelanggan*') ? 'fw-bold' : '' }}">Daftar Pelanggan</a>
-                <a href="{{ route('pelanggan.create') }}"
-                    class="nav-link text-white {{ request()->is('tambahpelanggan') ? 'fw-bold' : '' }}">Tambah
-                    Pelanggan</a>
+
+                <!-- Hanya Admin -->
+                @if (session('role') === 'Admin')
+                    <a href="{{ route('pelanggan.create') }}"
+                        class="nav-link text-white {{ request()->is('tambahpelanggan') ? 'fw-bold' : '' }}">Tambah
+                        Pelanggan</a>
+                @endif
             </div>
         </div>
 
@@ -56,19 +67,21 @@
             </div>
         </div>
 
-        <!-- 📊 Laporan -->
-        <div class="mb-2">
-            <a class="nav-link fw-bold text-white" data-bs-toggle="collapse" data-bs-target="#menuLaporan"
-                role="button">
-                📊 Laporan
-            </a>
-            <div class="collapse ms-3 {{ request()->is('laporan*') ? 'show' : '' }}" id="menuLaporan">
-                <a href="{{ route('laporan.pengeluaran') }}" class="nav-link text-white">Laporan Pengeluaran</a>
-                <a href="{{ route('laporan.pemasukan') }}"
-                    class="nav-link text-white {{ request()->is('laporan/pemasukan') ? 'fw-bold' : '' }}">Laporan
-                    Pemasukan</a>
+        <!-- 📊 Laporan (Hanya Admin) -->
+        @if (session('role') === 'Admin')
+            <div class="mb-2">
+                <a class="nav-link fw-bold text-white" data-bs-toggle="collapse" data-bs-target="#menuLaporan"
+                    role="button">
+                    📊 Laporan
+                </a>
+                <div class="collapse ms-3 {{ request()->is('laporan*') ? 'show' : '' }}" id="menuLaporan">
+                    <a href="{{ route('laporan.pengeluaran') }}" class="nav-link text-white">Laporan Pengeluaran</a>
+                    <a href="{{ route('laporan.pemasukan') }}"
+                        class="nav-link text-white {{ request()->is('laporan/pemasukan') ? 'fw-bold' : '' }}">Laporan
+                        Pemasukan</a>
+                </div>
             </div>
-        </div>
+        @endif
 
         <!-- 🏢 Distributor -->
         <div class="mb-2">
@@ -87,9 +100,12 @@
             </div>
         </div>
 
-        <!-- 🧾 Pajak -->
-        <a href="{{ route('pajak.index') }}"
-            class="nav-link fw-bold text-white {{ request()->is('pajak*') ? 'text-warning' : '' }}">🧾 Faktur Pajak</a>
+        <!-- 🧾 Pajak (Hanya Admin) -->
+        @if (session('role') === 'Admin')
+            <a href="{{ route('pajak.index') }}"
+                class="nav-link fw-bold text-white {{ request()->is('pajak*') ? 'text-warning' : '' }}">🧾 Faktur Pajak</a>
+        @endif
+
         <!-- 👤 Pengguna (khusus Dashboard) -->
         @if (request()->is('dashboard*'))
             <div class="mb-2">

@@ -113,18 +113,33 @@ class PembelianController extends Controller
         $pembelianId = $request->id ?? session('pembelian_id');
 
         if ($pembelianId) {
-            Pembelian::where('ID_Pembelian', $pembelianId)
-                ->update(['Status' => 'Dikembalikan']);
+            $pembelian = Pembelian::with('barangPembelian.barang')->find($pembelianId);
 
-            // Opsional: hapus item pembeliannya
-            // BarangPembelian::where('ID_Pembelian', $pembelianId)->delete();
+            if ($pembelian) {
+                // 🔸 Kurangi stok untuk setiap barang yang dibatalkan
+                foreach ($pembelian->barangPembelian as $item) {
+                    $barang = $item->barang;
 
-            session()->forget('pembelian_id');
+                    if ($barang) {
+                        $barang->decrement('Stok_Barang', $item->Jumlah);
+                    }
+                }
+
+                // 🔸 Ubah status pembelian menjadi "Dikembalikan"
+                $pembelian->update(['Status' => 'Dikembalikan']);
+
+                // (Opsional) Hapus item pembelian agar tidak tampil di daftar aktif
+                // BarangPembelian::where('ID_Pembelian', $pembelianId)->delete();
+
+                // 🔸 Hapus sesi pembelian jika ada
+                session()->forget('pembelian_id');
+            }
         }
 
         return redirect()->route('pembelian.index')
-            ->with('error', 'Transaksi pembelian telah dibatalkan.');
+            ->with('error', 'Transaksi pembelian telah dibatalkan dan stok telah dikurangi.');
     }
+
 
     /**
      * Selesaikan pembelian (checkout)
