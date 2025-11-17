@@ -70,10 +70,25 @@
 
         {{-- ⚠️ Peringatan Stok Menipis --}}
         @forelse ($barangMenipis as $b)
+            @php
+                // Siapkan daftar info tambahan (bisa berisi satu atau dua data)
+                $infoTambahan = [];
+                if (!empty($b['barang']->Besar_Satuan)) {
+                    $infoTambahan[] = $b['barang']->Besar_Satuan;
+                }
+                if (!empty($b['barang']->Deskripsi_Barang)) {
+                    $infoTambahan[] = $b['barang']->Deskripsi_Barang;
+                }
+              @endphp
+
             <div class="alert alert-warning mb-2 d-flex justify-content-between align-items-center">
                 <div>
-                    <strong>⚠️ Stok Menipis:</strong> {{ $b->Nama_Barang }} tersisa
-                    <b>{{ $b->Stok_Barang }}</b> unit.
+                    <strong>⚠️ Stok Menipis:</strong>
+                    {{ $b['barang']->Nama_Barang }}
+                    @if(count($infoTambahan) > 0)
+                        ({{ implode(' - ', $infoTambahan) }})
+                    @endif
+                    tersisa <b>{{ $b['barang']->Stok_Barang }}</b> unit.
                 </div>
                 <a href="{{ route('barang.index') }}" class="btn btn-sm btn-outline-dark">Lihat Barang</a>
             </div>

@@ -125,7 +125,7 @@
                 {{ $hargaSensor }}
               </span>
               <button type="button" class="btn btn-sm btn-outline-secondary btn-toggle-harga ms-2" title="Lihat harga asli">
-                <i class="fa-solid fa-eye"></i>
+                <i class="bi bi-eye"></i>
               </button>
             </td>
 
@@ -199,20 +199,32 @@
     document.addEventListener("DOMContentLoaded", () => {
       document.querySelectorAll('.btn-toggle-harga').forEach(button => {
         button.addEventListener('click', function () {
-          const hargaSpan = this.previousElementSibling;
+
+          const hargaSpan = this.closest('td').querySelector('.harga-sensor');
           const real = hargaSpan.dataset.real;
           const sensor = hargaSpan.dataset.sensor;
           const icon = this.querySelector('i');
-          const showingReal = hargaSpan.textContent.includes('Rp.');
 
-          if (showingReal) {
-            hargaSpan.textContent = sensor;
-            icon.classList.replace('fa-eye-slash', 'fa-eye');
-            this.title = "Lihat harga asli";
-          } else {
+          const sedangTersensor = (hargaSpan.textContent.trim() === sensor);
+
+          if (sedangTersensor) {
+            // 🔓 Tampilkan harga asli
             hargaSpan.textContent = 'Rp. ' + parseInt(real).toLocaleString('id-ID') + ',-';
-            icon.classList.replace('fa-eye', 'fa-eye-slash');
-            this.title = "Sembunyikan harga";
+
+            // ganti icon → eye-slash
+            icon.classList.remove('bi-eye');
+            icon.classList.add('bi-eye-slash');
+
+            this.title = "Sembunyikan harga asli";
+          } else {
+            // 🔒 Sembunyikan harga
+            hargaSpan.textContent = sensor;
+
+            // ganti icon → eye
+            icon.classList.remove('bi-eye-slash');
+            icon.classList.add('bi-eye');
+
+            this.title = "Lihat harga asli";
           }
         });
       });

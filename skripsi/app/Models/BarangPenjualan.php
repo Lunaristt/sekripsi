@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Relations\Pivot;
 
 class BarangPenjualan extends Pivot
 {
-    protected $table = 'BarangPenjualan';
+    protected $table = 'barangpenjualan';
     public $timestamps = false;
 
     protected $fillable = [

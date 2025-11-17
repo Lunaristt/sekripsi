@@ -5,14 +5,27 @@ namespace App\Http\Controllers;
 use App\Models\Barang;
 use App\Models\Pembelian;
 use App\Models\Penjualan;
+use App\Services\ROPService;
 use Carbon\Carbon;
 
 class HomeController extends Controller
 {
-    public function index()
+    public function index(ROPService $rop)
     {
-        // 🟡 Barang dengan stok menipis
-        $barangMenipis = Barang::where('Stok_Barang', '<', 10)->get();
+        $barangMenipis = [];
+
+        // 🚨 Cek stok tiap barang berdasarkan ROP
+        foreach (Barang::all() as $b) {
+
+            $ropValue = $rop->hitungROP($b->ID_Barang);
+
+            if ($b->Stok_Barang <= $ropValue) {
+                $barangMenipis[] = [
+                    'barang' => $b,
+                    'rop' => $ropValue
+                ];
+            }
+        }
 
         // 🔴 Pembelian mendekati jatuh tempo (dalam 7 hari)
         $jatuhTempo = Pembelian::with('distributor')
@@ -21,7 +34,7 @@ class HomeController extends Controller
             ->get();
 
         // 📆 Rekap pembelian & penjualan dari 1 hari yang lalu
-        $kemarin = Carbon::yesterday(); // tanggal kemarin
+        $kemarin = Carbon::yesterday();
 
         $totalPembelianKemarin = Pembelian::whereDate('Tanggal', $kemarin)
             ->where('Status', 'Diterima')
