@@ -61,9 +61,17 @@
                 <option value="">-- Pilih Barang --</option>
                 @foreach($barang as $b)
                     <option value="{{ $b->ID_Barang }}" data-harga="{{ $b->Harga_Barang }}"
-                        data-deskripsi="{{ $b->Deskripsi_Barang }}">
-                        {{ $b->Nama_Barang }} - {{ $b->Deskripsi_Barang }}
+                        data-deskripsi="{{ $b->Deskripsi_Barang }}" data-satuan="{{ $b->Besar_Satuan }} {{ $b->Satuan }}">
+
+                        {{ $b->Nama_Barang }}
+                        @if($b->Besar_Satuan)
+                            ({{ $b->Besar_Satuan }} {{ $b->Satuan }})
+                        @endif
+                        @if($b->Deskripsi_Barang)
+                            - {{ $b->Deskripsi_Barang }}
+                        @endif
                     </option>
+
                 @endforeach
             </select>
         </div>
@@ -108,7 +116,10 @@
 
     <script>
         $(document).ready(function () {
-            // === Inisialisasi Select2 ===
+
+            // ===============================
+            // 🔹 Select2 Pelanggan
+            // ===============================
             $('#namaPelanggan').select2({
                 placeholder: 'Ketik atau pilih pelanggan...',
                 tags: true,
@@ -116,14 +127,25 @@
                 width: '100%'
             });
 
-            // === Autofill Pelanggan ===
+            // ===============================
+            // 🔹 Select2 Barang (Search Aktif)
+            // ===============================
+            $('#ID_Barang').select2({
+                placeholder: 'Cari barang...',
+                allowClear: true,
+                width: '100%'
+            });
+
+            // 🔹 Autofill Pelanggan
             $('#namaPelanggan').on('change', function () {
                 const selected = $(this).find(':selected');
                 $('#noTelp').val(selected.data('telp') || '');
                 $('#alamatPelanggan').val(selected.data('alamat') || '');
             });
 
-            // === Data Barang (keranjang) ===
+            // ===============================
+            // 🔹 Data Barang (Keranjang)
+            // ===============================
             let keranjang = [];
 
             function renderTabel() {
@@ -141,7 +163,11 @@
                                         <td>${item.jumlah}</td>
                                         <td>Rp ${item.harga.toLocaleString('id-ID')}</td>
                                         <td>Rp ${item.total.toLocaleString('id-ID')}</td>
-                                        <td><button class="btn btn-danger btn-sm" onclick="hapusBarang(${i})">Hapus</button></td>
+                                        <td>
+                                            <button class="btn btn-danger btn-sm" onclick="hapusBarang(${i})">
+                                                Hapus
+                                            </button>
+                                        </td>
                                     </tr>
                                 `);
                     });
@@ -156,7 +182,9 @@
                 renderTabel();
             }
 
-            // === Tambah Barang ===
+            // ===============================
+            // 🔹 Tambah Barang
+            // ===============================
             $('#formAddItem').on('submit', function (e) {
                 e.preventDefault();
 
@@ -178,17 +206,30 @@
                     existingItem.total = existingItem.harga * existingItem.jumlah;
                     Swal.fire({ icon: 'info', title: 'Jumlah diperbarui!', timer: 1000, showConfirmButton: false });
                 } else {
-                    keranjang.push({ id: idBarang, nama: namaBarang, deskripsi, jumlah, harga, total: jumlah * harga });
+                    keranjang.push({
+                        id: idBarang,
+                        nama: namaBarang,
+                        deskripsi,
+                        jumlah,
+                        harga,
+                        total: jumlah * harga
+                    });
+
                     Swal.fire({ icon: 'success', title: 'Barang ditambahkan!', timer: 1000, showConfirmButton: false });
                 }
 
                 renderTabel();
                 this.reset();
+
+                // Reset Select2 Barang
+                $('#ID_Barang').val(null).trigger('change');
             });
 
             renderTabel();
 
-            // === Checkout ===
+            // ===============================
+            // 🔹 Checkout
+            // ===============================
             $('#checkoutForm').on('submit', function (e) {
                 e.preventDefault();
 
@@ -216,7 +257,6 @@
                     return;
                 }
 
-                // Kirim ke controller via AJAX
                 fetch("{{ route('transaksi.checkout') }}", {
                     method: "POST",
                     headers: {

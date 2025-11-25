@@ -89,8 +89,21 @@
             <select name="ID_Barang" id="ID_Barang" class="form-control" required>
                 <option value="">-- Pilih Barang --</option>
                 @foreach($barang as $b)
-                    <option value="{{ $b->ID_Barang }}">{{ $b->Nama_Barang }} - {{ $b->Deskripsi_Barang }}</option>
+                    <option value="{{ $b->ID_Barang }}" data-harga="{{ $b->Harga_Barang }}"
+                        data-deskripsi="{{ $b->Deskripsi_Barang }}" data-satuan="{{ $b->Besar_Satuan }} {{ $b->Satuan }}">
+
+                        {{ $b->Nama_Barang }}
+
+                        @if($b->Besar_Satuan)
+                            ({{ $b->Besar_Satuan }} {{ $b->Satuan }})
+                        @endif
+
+                        @if($b->Deskripsi_Barang)
+                            - {{ $b->Deskripsi_Barang }}
+                        @endif
+                    </option>
                 @endforeach
+
             </select>
         </div>
         <div class="mb-3">
@@ -125,7 +138,7 @@
             <input type="hidden" name="Total_Harga" id="checkoutTotal">
             <input type="hidden" name="Nama_Salesman" id="checkoutSalesman">
             <input type="hidden" name="NoTelp_Salesman" id="checkoutTelpSalesman">
-            <input type="hidden" name="Status" id="checkoutStatus" value="Diterima"> {{-- 🟢 Tambahan --}}
+            <input type="hidden" name="Status" id="checkoutStatus" value="Diterima">
             <button type="submit" class="btn btn-success">Selesaikan Pembelian</button>
         </form>
 
@@ -141,21 +154,29 @@
     <script>
         $(document).ready(function () {
 
-            // =========================================
-            // 🟢 VARIABEL GLOBAL
-            // =========================================
+            //VARIABEL GLOBAL
             let daftarBarang = [];
             let totalKeseluruhan = 0;
 
-            // =========================================
-            // 🟢 Inisialisasi Select2 Distributor
-            // =========================================
+            //Select2 Distributor
             $('#namaDistributor').select2({
                 placeholder: 'Pilih distributor...',
                 width: '100%'
             });
 
-            // Ketika distributor dipilih
+            //Select2 Barang (Search)
+            function initSelect2Barang() {
+                $('#ID_Barang').select2({
+                    placeholder: 'Cari barang...',
+                    allowClear: true,
+                    width: '100%'
+                });
+            }
+
+            // Panggil pertama kali
+            initSelect2Barang();
+
+            //EVENT: Distributor dipilih
             $('#namaDistributor').on('change', function () {
                 const distributorId = $(this).val();
                 const salesman = $(this).find(':selected').data('salesman') || '';
@@ -167,23 +188,33 @@
                 $('#checkoutSalesman').val(salesman);
                 $('#checkoutTelpSalesman').val(telp);
 
-                // Reset dropdown barang
+                // Reset pilihan barang
                 $('#ID_Barang').html('<option value="">-- Memuat data barang... --</option>');
+                initSelect2Barang();
 
-                // Ambil daftar barang milik distributor
+                // 🔵 Ambil barang distributor via AJAX
                 if (distributorId) {
                     $.get(`/pembelian/barang-by-distributor/${distributorId}`, function (data) {
+
                         let options = '<option value="">-- Pilih Barang --</option>';
+
                         if (data.length > 0) {
                             data.forEach(function (b) {
-                                options += `<option value="${b.ID_Barang}">
-                                                                                ${b.Nama_Barang} - ${b.Deskripsi_Barang ?? ''}
-                                                                            </option>`;
+                                options += `
+                                                <option value="${b.ID_Barang}">
+                                                    ${b.Nama_Barang} - ${b.Deskripsi_Barang ?? ''}
+                                                </option>`;
                             });
                         } else {
                             options = '<option value="">Distributor ini belum memiliki barang.</option>';
                         }
+
+                        // Update dropdown
                         $('#ID_Barang').html(options);
+
+                        // 🔥 Re-init Select2 setelah isi dropdown diupdate
+                        initSelect2Barang();
+
                     }).fail(function () {
                         Swal.fire({
                             icon: 'error',
@@ -191,13 +222,11 @@
                             text: 'Terjadi kesalahan saat mengambil data barang dari server.'
                         });
                     });
-                } else {
-                    $('#ID_Barang').html('<option value="">-- Pilih Barang --</option>');
                 }
             });
 
             // =========================================
-            // 🟢 Autofill Harga Beli per Barang
+            // 🟢 Autofill Harga Beli
             // =========================================
             $('#ID_Barang').on('change', function () {
                 const barangId = $(this).val();
@@ -219,7 +248,7 @@
                         Swal.fire({
                             icon: 'error',
                             title: 'Gagal mengambil harga beli',
-                            text: 'Terjadi kesalahan pada server saat mengambil data harga beli.'
+                            text: 'Terjadi kesalahan pada server.'
                         });
                     });
                 } else {
@@ -228,7 +257,7 @@
             });
 
             // =========================================
-            // 🟢 Tambahkan Barang ke Tabel & Simpan ke Array
+            // 🟢 Tambah Barang ke Tabel & Array
             // =========================================
             const form = $('#formAddItem');
             const listBarang = $('#listBarang');
@@ -237,10 +266,11 @@
             form.on('submit', function (e) {
                 e.preventDefault();
 
-                const barangSelect = $('#ID_Barang');
-                const idBarang = barangSelect.val();
-                const namaBarang = barangSelect.find(':selected').text().split('-')[0].trim();
-                const deskripsi = barangSelect.find(':selected').text().split('-')[1]?.trim() || '-';
+                const idBarang = $('#ID_Barang').val();
+                const label = $('#ID_Barang option:selected').text().split('-');
+
+                const namaBarang = label[0].trim();
+                const deskripsi = label[1]?.trim() || '-';
                 const jumlah = parseInt($('#Jumlah').val());
                 const hargaBeli = parseInt($('#Harga_Beli').val());
                 const totalHarga = jumlah * hargaBeli;
@@ -250,7 +280,6 @@
                     return;
                 }
 
-                // 🧾 Simpan ke array daftarBarang
                 daftarBarang.push({
                     ID_Barang: idBarang,
                     Nama_Barang: namaBarang,
@@ -260,37 +289,36 @@
                     Total_Harga: totalHarga
                 });
 
-                // Update total keseluruhan
                 totalKeseluruhan += totalHarga;
+
                 $('#checkoutBarang').val(JSON.stringify(daftarBarang));
                 $('#checkoutTotal').val(totalKeseluruhan);
 
-                // Hapus baris "Belum ada barang"
                 $('#emptyRow').remove();
 
-                // Tambahkan baris visual ke tabel
-                const newRow = $(`
-                                                    <tr class="align-middle text-center">
-                                                        <td class="text-start fw-semibold">${namaBarang}</td>
-                                                        <td>${deskripsi}</td>
-                                                        <td>${jumlah}</td>
-                                                        <td class="text-end">Rp ${hargaBeli.toLocaleString()}</td>
-                                                        <td class="text-end fw-bold">Rp ${totalHarga.toLocaleString()}</td>
-                                                        <td>
-                                                            <button type="button" class="btn btn-sm btn-danger btnHapus">
-                                                                <i class="bi bi-trash"></i> Hapus
-                                                            </button>
-                                                        </td>
-                                                    </tr>
-                                                `);
+                const row = $(`
+                                <tr class="align-middle text-center">
+                                    <td class="text-start fw-semibold">${namaBarang}</td>
+                                    <td>${deskripsi}</td>
+                                    <td>${jumlah}</td>
+                                    <td class="text-end">Rp ${hargaBeli.toLocaleString()}</td>
+                                    <td class="text-end fw-bold">Rp ${totalHarga.toLocaleString()}</td>
+                                    <td>
+                                        <button type="button" class="btn btn-sm btn-danger btnHapus">
+                                            <i class="bi bi-trash"></i> Hapus
+                                        </button>
+                                    </td>
+                                </tr>
+                            `);
 
-                listBarang.append(newRow);
+                listBarang.append(row);
                 grandTotal.text(`Total: Rp ${totalKeseluruhan.toLocaleString()}`);
-                form.trigger('reset');
 
-                // 🔹 Event tombol hapus baris
-                newRow.find('.btnHapus').on('click', function () {
-                    newRow.remove();
+                form.trigger('reset');
+                $('#ID_Barang').val(null).trigger('change');
+
+                row.find('.btnHapus').on('click', function () {
+                    row.remove();
                     totalKeseluruhan -= totalHarga;
                     daftarBarang = daftarBarang.filter(item => item.ID_Barang !== idBarang);
 
@@ -301,17 +329,18 @@
 
                     if (listBarang.children('tr').length === 0) {
                         listBarang.html(`
-                                                            <tr id="emptyRow">
-                                                                <td colspan="6" class="text-center text-muted py-3">
-                                                                    Belum ada barang dalam pembelian
-                                                                </td>
-                                                            </tr>
-                                                        `);
+                                        <tr id="emptyRow">
+                                            <td colspan="6" class="text-center text-muted py-3">
+                                                Belum ada barang dalam pembelian
+                                            </td>
+                                        </tr>
+                                    `);
                     }
                 });
             });
+
             // =========================================
-            // 🟢 Saat tombol "Selesaikan Pembelian" ditekan
+            // 🟢 Checkout
             // =========================================
             $('#checkoutForm').on('submit', function (e) {
                 e.preventDefault();
@@ -322,12 +351,9 @@
                     return;
                 }
 
-                // 🟢 Pastikan hidden input terisi
-                if (!$('#checkoutDistributor').val()) {
-                    $('#checkoutDistributor').val(distributorId);
-                }
-
+                $('#checkoutDistributor').val(distributorId);
                 $('#checkoutTempo').val($('#tanggalJatuhTempo').val());
+
                 const form = $(this);
                 const formData = form.serialize();
 
@@ -336,8 +362,7 @@
                         Swal.fire({
                             icon: 'success',
                             title: 'Berhasil!',
-                            text: `${response.message} (Total: Rp ${response.total.toLocaleString()})`,
-                            confirmButtonText: 'OK'
+                            text: `${response.message} (Total: Rp ${response.total.toLocaleString()})`
                         }).then(() => {
                             window.location.href = '/pembelian/create';
                         });
