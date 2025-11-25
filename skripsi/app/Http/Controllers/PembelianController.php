@@ -116,7 +116,7 @@ class PembelianController extends Controller
             $pembelian = Pembelian::with('barangPembelian.barang')->find($pembelianId);
 
             if ($pembelian) {
-                // 🔸 Kurangi stok untuk setiap barang yang dibatalkan
+                //Kurangi stok untuk setiap barang yang dibatalkan
                 foreach ($pembelian->barangPembelian as $item) {
                     $barang = $item->barang;
 
@@ -125,13 +125,10 @@ class PembelianController extends Controller
                     }
                 }
 
-                // 🔸 Ubah status pembelian menjadi "Dikembalikan"
+                //Ubah status pembelian menjadi "Dikembalikan"
                 $pembelian->update(['Status' => 'Dikembalikan']);
 
-                // (Opsional) Hapus item pembelian agar tidak tampil di daftar aktif
-                // BarangPembelian::where('ID_Pembelian', $pembelianId)->delete();
-
-                // 🔸 Hapus sesi pembelian jika ada
+                //Hapus sesi pembelian jika ada
                 session()->forget('pembelian_id');
             }
         }

@@ -9,7 +9,7 @@ use Carbon\Carbon;
 
 class LaporanController extends Controller
 {
-    // 🧾 Laporan Pemasukan Bulanan
+    //Laporan Pemasukan Bulanan
     public function pemasukan(Request $request)
     {
         $bulan = $request->input('bulan', now()->format('Y-m'));
@@ -17,7 +17,7 @@ class LaporanController extends Controller
         $awal = Carbon::parse($bulan . '-01')->startOfMonth();
         $akhir = Carbon::parse($bulan . '-01')->endOfMonth();
 
-        // ✅ Ambil hanya penjualan dengan total harga lebih dari 0
+        //Ambil hanya penjualan dengan total harga lebih dari 0
         $penjualan = Penjualan::with('pelanggan')
             ->whereBetween('Tanggal', [$awal, $akhir])
             ->where('Status', 'Selesai')

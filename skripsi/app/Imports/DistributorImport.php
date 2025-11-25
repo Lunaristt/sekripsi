@@ -34,13 +34,6 @@ class DistributorImport implements ToCollection, WithHeadingRow
             );
         }
     }
-
-    /**
-     * Pastikan header Excel dibaca dari baris pertama.
-     *
-     * Contoh header yang diterima:
-     * | Nama Distributor | Telp CS | Nama Salesman | Notelp Salesman |
-     */
     public function headingRow(): int
     {
         return 1; // baris pertama digunakan sebagai header

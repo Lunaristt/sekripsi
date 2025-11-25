@@ -201,9 +201,9 @@
                         if (data.length > 0) {
                             data.forEach(function (b) {
                                 options += `
-                                                <option value="${b.ID_Barang}">
-                                                    ${b.Nama_Barang} - ${b.Deskripsi_Barang ?? ''}
-                                                </option>`;
+                                                    <option value="${b.ID_Barang}">
+                                                        ${b.Nama_Barang} - ${b.Deskripsi_Barang ?? ''}
+                                                    </option>`;
                             });
                         } else {
                             options = '<option value="">Distributor ini belum memiliki barang.</option>';
@@ -225,9 +225,7 @@
                 }
             });
 
-            // =========================================
             // 🟢 Autofill Harga Beli
-            // =========================================
             $('#ID_Barang').on('change', function () {
                 const barangId = $(this).val();
                 const distributorId = $('#namaDistributor').val();
@@ -256,9 +254,7 @@
                 }
             });
 
-            // =========================================
             // 🟢 Tambah Barang ke Tabel & Array
-            // =========================================
             const form = $('#formAddItem');
             const listBarang = $('#listBarang');
             const grandTotal = $('#grandTotal');
@@ -297,19 +293,19 @@
                 $('#emptyRow').remove();
 
                 const row = $(`
-                                <tr class="align-middle text-center">
-                                    <td class="text-start fw-semibold">${namaBarang}</td>
-                                    <td>${deskripsi}</td>
-                                    <td>${jumlah}</td>
-                                    <td class="text-end">Rp ${hargaBeli.toLocaleString()}</td>
-                                    <td class="text-end fw-bold">Rp ${totalHarga.toLocaleString()}</td>
-                                    <td>
-                                        <button type="button" class="btn btn-sm btn-danger btnHapus">
-                                            <i class="bi bi-trash"></i> Hapus
-                                        </button>
-                                    </td>
-                                </tr>
-                            `);
+                                    <tr class="align-middle text-center">
+                                        <td class="text-start fw-semibold">${namaBarang}</td>
+                                        <td>${deskripsi}</td>
+                                        <td>${jumlah}</td>
+                                        <td class="text-end">Rp ${hargaBeli.toLocaleString()}</td>
+                                        <td class="text-end fw-bold">Rp ${totalHarga.toLocaleString()}</td>
+                                        <td>
+                                            <button type="button" class="btn btn-sm btn-danger btnHapus">
+                                                <i class="bi bi-trash"></i> Hapus
+                                            </button>
+                                        </td>
+                                    </tr>
+                                `);
 
                 listBarang.append(row);
                 grandTotal.text(`Total: Rp ${totalKeseluruhan.toLocaleString()}`);
@@ -329,19 +325,16 @@
 
                     if (listBarang.children('tr').length === 0) {
                         listBarang.html(`
-                                        <tr id="emptyRow">
-                                            <td colspan="6" class="text-center text-muted py-3">
-                                                Belum ada barang dalam pembelian
-                                            </td>
-                                        </tr>
-                                    `);
+                                            <tr id="emptyRow">
+                                                <td colspan="6" class="text-center text-muted py-3">
+                                                    Belum ada barang dalam pembelian
+                                                </td>
+                                            </tr>
+                                        `);
                     }
                 });
             });
-
-            // =========================================
             // 🟢 Checkout
-            // =========================================
             $('#checkoutForm').on('submit', function (e) {
                 e.preventDefault();
 

@@ -18,7 +18,7 @@ class BarangController extends Controller
      */
     public function index(Request $request)
     {
-        $query = Barang::with(['satuanbarang', 'distributor']); // relasi satuan & distributor
+        $query = Barang::with(['satuanbarang', 'distributor']);
 
         // 🔍 Fitur Search
         if ($request->has('search') && !empty($request->search)) {
@@ -31,8 +31,8 @@ class BarangController extends Controller
         }
 
         // 🔽 Fitur Sort
-        $sort = $request->get('sort', 'Nama_Barang'); // default: Nama_Barang
-        $direction = $request->get('direction', 'asc'); // default: asc
+        $sort = $request->get('sort', 'Nama_Barang');
+        $direction = $request->get('direction', 'asc');
 
         // 🔹 Urutkan sesuai kolom
         if ($sort === 'Merek_Barang') {
@@ -41,7 +41,7 @@ class BarangController extends Controller
             $query->orderBy($sort, $direction);
         }
 
-        // ✅ Pagination: tampilkan 30 item per halaman + simpan query string
+        //Pagination: tampilkan 30 item per halaman + simpan query string
         $barang = $query->paginate(30)->withQueryString();
 
         // Ambil data satuan untuk dropdown (jika ada)
@@ -58,7 +58,7 @@ class BarangController extends Controller
     {
         $satuanbarang = Satuanbarang::all();
         $kategoribarang = Kategoribarang::all();
-        $distributor = Distributor::all(); // ambil semua distributor
+        $distributor = Distributor::all();
 
         return view('barang.tambahbarang', compact('kategoribarang', 'satuanbarang', 'distributor'));
     }

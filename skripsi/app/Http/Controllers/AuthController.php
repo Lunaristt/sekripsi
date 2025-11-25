@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Hash;
 class AuthController extends Controller
 {
     /**
-     * 🔹 Tampilkan halaman login
+     *Tampilkan halaman login
      */
     public function showLogin()
     {
@@ -17,7 +17,7 @@ class AuthController extends Controller
     }
 
     /**
-     * 🔹 Proses login pengguna
+     *Proses login pengguna
      */
     public function login(Request $request)
     {
@@ -33,7 +33,7 @@ class AuthController extends Controller
         // Cek keberadaan user dan password
         if ($user && Hash::check($request->password, $user->Password)) {
 
-            // 🔒 Cek status akun
+            //Cek status akun
             if ($user->Status !== 'approved') {
                 // Arahkan ke halaman akses-terbatas tanpa sidebar
                 return view('aksesterbatas', [
@@ -42,14 +42,14 @@ class AuthController extends Controller
                 ]);
             }
 
-            // ✅ Jika sudah approved, simpan data ke session
+            //Jika sudah approved, simpan data ke session
             session([
                 'user_id' => $user->ID_Pengguna,
                 'nama' => $user->Nama,
                 'role' => $user->Role,
             ]);
 
-            // ✅ Redirect sesuai role
+            //Redirect sesuai role
             if (strtolower($user->Role) === 'admin') {
                 return redirect()->route('dashboard')->with('success', 'Selamat datang Admin!');
             } else {
@@ -57,7 +57,7 @@ class AuthController extends Controller
             }
         }
 
-        // ❌ Jika gagal login
+        //Jika gagal login
         return redirect()->route('login')->with('error', 'Username atau Password salah!');
     }
 

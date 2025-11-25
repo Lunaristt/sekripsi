@@ -10,7 +10,7 @@ class PajakController extends Controller
 {
     public function index()
     {
-        // Hitung omzet dan pajak per bulan
+        //Hitung omzet dan pajak per bulan
         $data = Penjualan::select(
             DB::raw('YEAR(Tanggal) as Tahun'),
             DB::raw('MONTH(Tanggal) as Bulan'),
@@ -18,7 +18,7 @@ class PajakController extends Controller
         )
             ->where('Status', 'Selesai')
             ->groupBy(DB::raw('YEAR(Tanggal), MONTH(Tanggal)'))
-            ->orderByRaw('YEAR(Tanggal) DESC, MONTH(Tanggal) DESC') // ✅ tidak ada “asc” tambahan
+            ->orderByRaw('YEAR(Tanggal) DESC, MONTH(Tanggal) DESC') //tidak ada “asc” tambahan
             ->get()
             ->map(function ($item) {
                 $item->Nama_Bulan = date('F', mktime(0, 0, 0, $item->Bulan, 1));

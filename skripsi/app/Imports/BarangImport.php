@@ -18,7 +18,7 @@ class BarangImport implements ToModel, WithHeadingRow
      */
     public function model(array $row)
     {
-        // ✅ Validasi kolom wajib
+        //Validasi kolom wajib
         if (
             !isset($row['nama_barang']) ||
             !isset($row['kategori_barang']) ||
@@ -27,17 +27,17 @@ class BarangImport implements ToModel, WithHeadingRow
             return null; // Lewati baris jika tidak lengkap
         }
 
-        // 🔹 1. Cek / buat kategori
+        //1. Cek / buat kategori
         $kategori = kategoribarang::firstOrCreate([
             'Kategori_Barang' => $row['kategori_barang'],
         ]);
 
-        // 🔹 2. Cek / buat satuan
+        //2. Cek / buat satuan
         $satuan = satuanbarang::firstOrCreate([
             'Nama_Satuan' => $row['nama_satuan'] ?? '-',
         ]);
 
-        // 🔹 3. Selalu buat data barang baru (tidak cek duplikat)
+        //3. Selalu buat data barang baru (tidak cek duplikat)
         $barang = Barang::create([
             'ID_Kategori' => $kategori->ID_Kategori,
             'ID_Satuan' => $satuan->ID_Satuan,
@@ -49,14 +49,14 @@ class BarangImport implements ToModel, WithHeadingRow
             'Deskripsi_Barang' => $row['deskripsi_barang'] ?? null,
         ]);
 
-        // 🔹 4. Cek / buat distributor
+        //4. Cek / buat distributor
         if (!empty($row['nama_distributor'])) {
             $distributor = Distributor::firstOrCreate([
                 'Nama_Distributor' => $row['nama_distributor'],
             ]);
 
 
-            // 🔹 5. Simpan relasi barang-distributor + harga beli
+            //5. Simpan relasi barang-distributor + harga beli
             BarangDistributor::create([
                 'ID_Barang' => $barang->ID_Barang,
                 'ID_Distributor' => $distributor->ID_Distributor,

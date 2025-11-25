@@ -14,7 +14,7 @@ class HomeController extends Controller
     {
         $barangMenipis = [];
 
-        // 🚨 Cek stok tiap barang berdasarkan ROP
+        //Cek stok tiap barang berdasarkan ROP
         foreach (Barang::all() as $b) {
 
             $ropValue = $rop->hitungROP($b->ID_Barang);
@@ -27,13 +27,13 @@ class HomeController extends Controller
             }
         }
 
-        // 🔴 Pembelian mendekati jatuh tempo (dalam 7 hari)
+        //Pembelian mendekati jatuh tempo (dalam 7 hari)
         $jatuhTempo = Pembelian::with('distributor')
             ->where('Status', 'Diterima')
             ->whereBetween('Tanggal_Jatuh_Tempo', [Carbon::now(), Carbon::now()->addDays(7)])
             ->get();
 
-        // 📆 Rekap pembelian & penjualan dari 1 hari yang lalu
+        //Rekap pembelian & penjualan dari 1 hari yang lalu
         $kemarin = Carbon::yesterday();
 
         $totalPembelianKemarin = Pembelian::whereDate('Tanggal', $kemarin)

@@ -133,7 +133,7 @@ class TransaksiController extends Controller
 
         DB::beginTransaction();
         try {
-            // 🔹 Cek pelanggan atau buat baru
+            //Cek pelanggan atau buat baru
             $pelanggan = Pelanggan::firstOrCreate(
                 ['No_Telp' => $request->No_Telp],
                 [
@@ -142,7 +142,7 @@ class TransaksiController extends Controller
                 ]
             );
 
-            // 🔹 Ambil transaksi pending
+            //Ambil transaksi pending
             $penjualan = Penjualan::where('Status', 'Pending')->latest('ID_Penjualan')->first();
 
             if (!$penjualan) {
@@ -153,7 +153,7 @@ class TransaksiController extends Controller
                 ]);
             }
 
-            // 🔹 Update data transaksi
+            //Update data transaksi
             $penjualan->update([
                 'No_Telp' => $pelanggan->No_Telp,
                 'Status' => 'Selesai',
@@ -161,7 +161,7 @@ class TransaksiController extends Controller
                 'Harga_Keseluruhan' => collect($request->barang)->sum('total'),
             ]);
 
-            // 🔹 Simpan barang-barang
+            //Simpan barang-barang
             foreach ($request->barang as $item) {
                 $barang = Barang::findOrFail($item['id']);
                 if ($barang->Stok_Barang < $item['jumlah']) {

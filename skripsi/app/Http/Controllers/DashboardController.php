@@ -14,25 +14,25 @@ use Carbon\Carbon;
 class DashboardController extends Controller
 {
     /**
-     * 🏠 Menampilkan halaman utama dashboard (untuk card ringkasan)
+     * Menampilkan halaman utama dashboard (untuk card ringkasan)
      */
     public function index()
     {
-        // 📦 Jumlah total barang
+        //Jumlah total barang
         $totalBarang = Barang::count();
 
-        // 👥 Jumlah total pelanggan
+        //Jumlah total pelanggan
         $totalPelanggan = Pelanggan::count();
 
-        // 🚚 Jumlah total distributor
+        //Jumlah total distributor
         $totalDistributor = Distributor::count();
 
-        // 💰 Total pendapatan dari penjualan hari ini (status selesai)
+        //Total pendapatan dari penjualan hari ini (status selesai)
         $pendapatanHariIni = Penjualan::where('Status', 'Selesai')
             ->whereDate('Tanggal', Carbon::today())
             ->sum('Harga_Keseluruhan');
 
-        // 📤 Kirim semua data ke tampilan dashboard
+        //Kirim semua data ke tampilan dashboard
         return view('dashboard', compact(
             'totalBarang',
             'totalPelanggan',
@@ -43,15 +43,13 @@ class DashboardController extends Controller
 
 
     /**
-     * 📊 Digunakan oleh AJAX untuk memuat data Chart.js (penjualan & pembelian)
+     * Digunakan oleh AJAX untuk memuat data Chart.js (penjualan & pembelian)
      */
     public function dashboardData(Request $request)
     {
         $filter = $request->get('filter', 'bulan');
 
-        // ==============================
         // 🟩 DATA PENJUALAN
-        // ==============================
         switch ($filter) {
             case 'bulan':
                 $penjualan = Penjualan::select(
@@ -116,9 +114,7 @@ class DashboardController extends Controller
 
         $penjualanValues = $penjualan->pluck('Total_Omzet');
 
-        // ==============================
         // 🟦 DATA PEMBELIAN
-        // ==============================
         switch ($filter) {
             case 'bulan':
                 $pembelian = Pembelian::select(
@@ -168,9 +164,7 @@ class DashboardController extends Controller
 
         $pembelianValues = $pembelian->pluck('Total_Pembelian');
 
-        // ==============================
         // 🟢 RETURN JSON UNTUK CHART
-        // ==============================
         return response()->json([
             'labels' => $labels,
             'penjualan' => $penjualanValues,

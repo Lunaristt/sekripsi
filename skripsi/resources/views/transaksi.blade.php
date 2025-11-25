@@ -9,7 +9,7 @@
 @section('content')
     <h4 class="mb-4">Transaksi Baru (ID: {{ $penjualan->ID_Penjualan }})</h4>
 
-    {{-- 🔹 Informasi Pelanggan --}}
+    {{--Informasi Pelanggan --}}
     <div class="row mb-4">
         <div class="col-md-4">
             <h6 class="fw-bold">Nama Pelanggan</h6>
@@ -34,7 +34,7 @@
         </div>
     </div>
 
-    {{-- 🔹 Tabel Barang --}}
+    {{--Tabel Barang --}}
     <table class="table table-bordered align-middle" id="tabelTransaksi">
         <thead class="table-light">
             <tr>
@@ -53,7 +53,7 @@
         </tbody>
     </table>
 
-    {{-- 🔹 Form Tambah Barang --}}
+    {{--Form Tambah Barang --}}
     <form id="formAddItem" class="mt-3">
         <div class="mb-3">
             <label for="ID_Barang" class="form-label">Pilih Barang</label>
@@ -84,12 +84,12 @@
         <button type="submit" class="btn btn-primary">Tambah Barang</button>
     </form>
 
-    {{-- 🔹 Total --}}
+    {{--Total --}}
     <div class="d-flex justify-content-between align-items-center mt-4">
         <h6 id="grandTotal" class="fw-bold">Total: Rp 0</h6>
     </div>
 
-    {{-- 🔹 Tombol Aksi --}}
+    {{--Tombol Aksi --}}
     <div class="d-flex justify-content-end mt-3">
         <form action="{{ route('transaksi.cancel') }}" method="POST" class="me-2">
             @csrf
@@ -117,9 +117,7 @@
     <script>
         $(document).ready(function () {
 
-            // ===============================
-            // 🔹 Select2 Pelanggan
-            // ===============================
+            //Select2 Pelanggan
             $('#namaPelanggan').select2({
                 placeholder: 'Ketik atau pilih pelanggan...',
                 tags: true,
@@ -127,25 +125,21 @@
                 width: '100%'
             });
 
-            // ===============================
-            // 🔹 Select2 Barang (Search Aktif)
-            // ===============================
+            //Select2 Barang (Search Aktif)
             $('#ID_Barang').select2({
                 placeholder: 'Cari barang...',
                 allowClear: true,
                 width: '100%'
             });
 
-            // 🔹 Autofill Pelanggan
+            //Autofill Pelanggan
             $('#namaPelanggan').on('change', function () {
                 const selected = $(this).find(':selected');
                 $('#noTelp').val(selected.data('telp') || '');
                 $('#alamatPelanggan').val(selected.data('alamat') || '');
             });
 
-            // ===============================
-            // 🔹 Data Barang (Keranjang)
-            // ===============================
+            //Data Barang (Keranjang)
             let keranjang = [];
 
             function renderTabel() {
@@ -157,19 +151,19 @@
                 } else {
                     keranjang.forEach((item, i) => {
                         tbody.append(`
-                                    <tr>
-                                        <td>${item.nama}</td>
-                                        <td>${item.deskripsi}</td>
-                                        <td>${item.jumlah}</td>
-                                        <td>Rp ${item.harga.toLocaleString('id-ID')}</td>
-                                        <td>Rp ${item.total.toLocaleString('id-ID')}</td>
-                                        <td>
-                                            <button class="btn btn-danger btn-sm" onclick="hapusBarang(${i})">
-                                                Hapus
-                                            </button>
-                                        </td>
-                                    </tr>
-                                `);
+                                        <tr>
+                                            <td>${item.nama}</td>
+                                            <td>${item.deskripsi}</td>
+                                            <td>${item.jumlah}</td>
+                                            <td>Rp ${item.harga.toLocaleString('id-ID')}</td>
+                                            <td>Rp ${item.total.toLocaleString('id-ID')}</td>
+                                            <td>
+                                                <button class="btn btn-danger btn-sm" onclick="hapusBarang(${i})">
+                                                    Hapus
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    `);
                     });
                 }
 
@@ -182,9 +176,7 @@
                 renderTabel();
             }
 
-            // ===============================
-            // 🔹 Tambah Barang
-            // ===============================
+            //Tambah Barang
             $('#formAddItem').on('submit', function (e) {
                 e.preventDefault();
 
@@ -227,9 +219,7 @@
 
             renderTabel();
 
-            // ===============================
-            // 🔹 Checkout
-            // ===============================
+            //Checkout
             $('#checkoutForm').on('submit', function (e) {
                 e.preventDefault();
 

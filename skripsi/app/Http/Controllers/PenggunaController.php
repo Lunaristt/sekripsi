@@ -8,7 +8,7 @@ use App\Models\Pengguna;
 class PenggunaController extends Controller
 {
     /**
-     * 🔹 Tampilkan daftar pengguna (dengan fitur pencarian & status)
+     * Tampilkan daftar pengguna (dengan fitur pencarian & status)
      */
     public function index(Request $request)
     {
@@ -30,7 +30,7 @@ class PenggunaController extends Controller
     }
 
     /**
-     * 🔹 Tampilkan form registrasi pengguna baru
+     *Tampilkan form registrasi pengguna baru
      */
     public function create()
     {
@@ -38,7 +38,7 @@ class PenggunaController extends Controller
     }
 
     /**
-     * 🔹 Tampilkan form edit pengguna
+     *Tampilkan form edit pengguna
      */
     public function edit($id)
     {
@@ -47,7 +47,7 @@ class PenggunaController extends Controller
     }
 
     /**
-     * 🔹 Hapus pengguna dari database
+     *Hapus pengguna dari database
      */
     public function destroy($id)
     {
@@ -58,7 +58,7 @@ class PenggunaController extends Controller
     }
 
     /**
-     * 🔹 Approve akun pengguna (ubah status jadi 'approved')
+     *Approve akun pengguna (ubah status jadi 'approved')
      */
     public function approve($id)
     {
@@ -75,7 +75,7 @@ class PenggunaController extends Controller
     }
 
     /**
-     * 🔹 Batalkan approval (opsional) — ubah kembali ke restricted
+     *Batalkan approval (opsional) — ubah kembali ke restricted
      */
     public function restrict($id)
     {
@@ -92,7 +92,7 @@ class PenggunaController extends Controller
     }
 
     /**
-     * 🔹 Update Role pengguna dari dropdown
+     * Update Role pengguna dari dropdown
      */
     public function updateRole(Request $request, $id)
     {
