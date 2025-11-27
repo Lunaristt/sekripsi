@@ -20,6 +20,7 @@ class PembelianController extends Controller
             'distributor',
             'barang.distributor'
         ])
+            ->where('Status', '!=', 'Pending')
             ->orderBy('Tanggal', 'desc')
             ->get();
 
@@ -116,7 +117,7 @@ class PembelianController extends Controller
             $pembelian = Pembelian::with('barangPembelian.barang')->find($pembelianId);
 
             if ($pembelian) {
-                //Kurangi stok untuk setiap barang yang dibatalkan
+                // ðŸ”¸ Kurangi stok untuk setiap barang yang dibatalkan
                 foreach ($pembelian->barangPembelian as $item) {
                     $barang = $item->barang;
 
@@ -125,10 +126,10 @@ class PembelianController extends Controller
                     }
                 }
 
-                //Ubah status pembelian menjadi "Dikembalikan"
+                // ðŸ”¸ Ubah status pembelian menjadi "Dikembalikan"
                 $pembelian->update(['Status' => 'Dikembalikan']);
 
-                //Hapus sesi pembelian jika ada
+                // ðŸ”¸ Hapus sesi pembelian jika ada
                 session()->forget('pembelian_id');
             }
         }
@@ -248,4 +249,18 @@ class PembelianController extends Controller
             'harga_beli' => $barangDistributor->Harga_Beli ?? 0
         ]);
     }
+
+    public function show($idPembelian)
+    {
+        // Ambil data pembelian lengkap dengan distributor dan daftar barang yang dibeli
+        $pembelian = Pembelian::with([
+            'distributor',                 // relasi ke distributor
+            'barangpembelian.barang',      // relasi pivot + barang
+            'barangpembelian.barang.satuanbarang' // jika ingin satuan muncul
+        ])->findOrFail($idPembelian);
+
+        // Kirim data ke view detail pembelian
+        return view('lihatpembelian', compact('pembelian'));
+    }
+
 }

@@ -3,12 +3,13 @@
 @section('title', 'Status Pembelian - Toko Sumber Rejeki')
 
 @section('content')
-    <h4 class="fw-bold mb-4">📦 Status Pembelian</h4>
+    <h4 class="fw-bold mb-4">📦 List Pembelian</h4>
 
     <div class="table-responsive">
         <table class="table table-bordered table-hover align-middle">
             <thead class="table-dark">
                 <tr>
+                    <th>ID Pembelian</th>
                     <th>Nama Distributor</th>
                     <th>Tanggal Pembelian</th>
                     <th>Harga Keseluruhan</th>
@@ -20,6 +21,7 @@
             <tbody>
                 @forelse($pembelian as $p)
                     <tr>
+                        <td class="fw-semibold">{{ $p->ID_Pembelian ?? '—' }}</td>
                         <td class="fw-semibold">{{ $p->distributor->Nama_Distributor ?? '—' }}</td>
                         <td>{{ \Carbon\Carbon::parse($p->Tanggal)->format('d M Y') }}</td>
                         <td>Rp {{ number_format($p->Harga_Keseluruhan, 0, ',', '.') }}</td>
@@ -36,7 +38,8 @@
                             @endif
                         </td>
                         <td>
-                            <a href="" class="btn btn-info btn-sm justify-content-center">
+                            <a href="{{ route('pembelian.show', $p->ID_Pembelian) }}"
+                                class="btn btn-info btn-sm justify-content-center">
                                 🔍 Lihat
                             </a>
                             <form action="{{ route('pembelian.cancel') }}" method="POST" class="d-inline"

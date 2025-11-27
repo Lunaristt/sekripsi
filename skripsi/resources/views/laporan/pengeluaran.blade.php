@@ -3,7 +3,7 @@
 @section('title', 'Laporan Pengeluaran Bulanan - Toko Sumber Rejeki')
 
 @section('content')
-    <h4 class="fw-bold mb-4">📊 Laporan Pengeluaran Bulanan</h4>
+    <h4 class="fw-bold mb-4">📊 Laporan Pembelian Bulanan</h4>
 
     <!-- 🔹 Filter Bulan -->
     <form method="GET" action="{{ route('laporan.pengeluaran') }}" class="row g-3 mb-4">
@@ -38,7 +38,7 @@
                     @php $totalBulan = 0; @endphp
                     @foreach($pembelian as $p)
                         <tr>
-                            <td class="text-center">{{ \Carbon\Carbon::parse($p->Tanggal_Jatuh_Tempo)->format('d/m/Y') }}</td>
+                            <td class="text-start">{{ \Carbon\Carbon::parse($p->Tanggal_Jatuh_Tempo)->format('d/m/Y') }}</td>
                             <td>{{ $p->distributor->Nama_Distributor ?? '-' }}</td>
                             <td>{{ $p->distributor->Nama_Salesman ?? '-' }}</td>
                             <td class="text-end">{{ number_format($p->Harga_Keseluruhan, 0, ',', '.') }}</td>

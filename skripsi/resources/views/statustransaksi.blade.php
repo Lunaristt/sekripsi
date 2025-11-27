@@ -3,7 +3,7 @@
 @section('title', 'Status Penjualan - Toko Sumber Rejeki')
 
 @section('content')
-    <h4 class="mb-4 fw-bold">Status Penjualan</h4>
+    <h4 class="mb-4 fw-bold">List Penjualan</h4>
 
     {{-- ✅ Notifikasi sukses --}}
     @if(session('success'))
@@ -18,6 +18,7 @@
         <table class="table table-bordered table-hover align-middle">
             <thead class="table-dark">
                 <tr>
+                    <th>Kode Penjualan</th>
                     <th>Nama Pelanggan</th>
                     <th>Nomor Telepon</th>
                     <th>Harga Keseluruhan</th>
@@ -29,6 +30,7 @@
             <tbody>
                 @forelse($penjualan as $p)
                     <tr>
+                        <td>{{ $p->ID_Penjualan }}</td>
                         <td>{{ $p->Nama_Pelanggan }}</td>
                         <td>{{ $p->No_Telp }}</td>
                         <td>Rp. {{ number_format($p->Harga_Keseluruhan, 0, ',', '.') }}</td>

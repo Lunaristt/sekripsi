@@ -16,20 +16,24 @@
 
     {{-- 🔹 Informasi Pelanggan --}}
     <div class="row mb-4">
-        <div class="col-md-4">
+        <div class="col-md-3">
             <h6 class="fw-bold">Nama Pelanggan</h6>
             <input type="text" class="form-control readonly-input"
                 value="{{ $penjualan->pelanggan->Nama_Pelanggan ?? '-' }}" readonly>
         </div>
-        <div class="col-md-4">
+        <div class="col-md-3">
             <h6 class="fw-bold">Nomor Telepon</h6>
             <input type="text" class="form-control readonly-input" value="{{ $penjualan->pelanggan->No_Telp ?? '-' }}"
                 readonly>
         </div>
-        <div class="col-md-4">
+        <div class="col-md-3">
             <h6 class="fw-bold">Alamat</h6>
             <input type="text" class="form-control readonly-input" value="{{ $penjualan->pelanggan->Alamat ?? '-' }}"
                 readonly>
+        </div>
+        <div class="col-md-3">
+            <h6 class="fw-bold">Tanggal Transaksi</h6>
+            <input type="text" class="form-control readonly-input" value="{{ $penjualan->Tanggal ?? '-' }}" readonly>
         </div>
     </div>
 
@@ -76,8 +80,9 @@
     {{-- 🔹 Tombol Aksi --}}
     <div class="d-flex justify-content-end mt-3">
         <a href="{{ route('penjualan.index') }}" class="btn btn-secondary me-2">Kembali</a>
-        <form action="{{ route('penjualan.print', $penjualan->ID_Penjualan) }}" method="GET">
+        <form action="{{ route('penjualan.print', $penjualan->ID_Penjualan) }}" method="GET" target="_blank">
             <button type="submit" class="btn btn-primary">🖨️ Cetak Nota</button>
         </form>
+
     </div>
 @endsection

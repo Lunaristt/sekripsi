@@ -3,7 +3,7 @@
 @section('title', 'Laporan Pemasukan Bulanan - Toko Sumber Rejeki')
 
 @section('content')
-    <h4 class="fw-bold mb-4">💰 Laporan Pemasukan Bulanan</h4>
+    <h4 class="fw-bold mb-4">💰 Laporan Penjualan Bulanan</h4>
 
     <!-- 🔹 Filter Bulan -->
     <form method="GET" action="{{ route('laporan.pemasukan') }}" class="row g-3 mb-4">

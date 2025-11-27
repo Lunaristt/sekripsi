@@ -75,10 +75,10 @@
                     📊 Laporan
                 </a>
                 <div class="collapse ms-3 {{ request()->is('laporan*') ? 'show' : '' }}" id="menuLaporan">
-                    <a href="{{ route('laporan.pengeluaran') }}" class="nav-link text-white">Laporan Pengeluaran</a>
+                    <a href="{{ route('laporan.pengeluaran') }}" class="nav-link text-white">Laporan Pembelian</a>
                     <a href="{{ route('laporan.pemasukan') }}"
                         class="nav-link text-white {{ request()->is('laporan/pemasukan') ? 'fw-bold' : '' }}">Laporan
-                        Pemasukan</a>
+                        Penjualan</a>
                 </div>
             </div>
         @endif

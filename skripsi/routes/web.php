@@ -156,6 +156,7 @@ Route::middleware(['authcheck'])->group(function () {
         Route::post('/checkout', [PembelianController::class, 'checkout'])->name('pembelian.checkout');
         Route::get('/barang-by-distributor/{id}', [PembelianController::class, 'getBarangByDistributor']);
         Route::get('/harga-beli/{distributorId}/{barangId}', [PembelianController::class, 'getHargaBeli']);
+        Route::get('/show/{ID_Pembelian}', [PembelianController::class, 'show'])->name('pembelian.show');
     });
 
     Route::get('/pembelian', fn() => view('pembelian'))->name('pembelian');

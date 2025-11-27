@@ -71,6 +71,7 @@
     <table class="table table-hover align-middle">
       <thead class="table-dark text-left">
         <tr>
+          <th>Kode Barang</th>
           <th>Nama Barang</th>
           <th>Merek Barang</th>
           <th>Berat/Ukuran</th>
@@ -113,6 +114,7 @@
           @endphp
 
           <tr>
+            <td>{{ $b->ID_Barang }}</td>
             <td>{{ $b->Nama_Barang }}</td>
             <td>{{ $b->Merek_Barang ?? '-' }}</td>
             <td>{{ $b->Besar_Satuan ?? '-' }}</td>
