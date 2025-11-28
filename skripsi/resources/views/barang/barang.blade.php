@@ -27,17 +27,17 @@
 
 @section('content')
   <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
-    <!-- 🔍 Form Search -->
+    <!--Form Search -->
     <form action="{{ route('barang.index') }}" method="GET" class="d-flex flex-grow-1 me-2">
       <input type="text" name="search" class="form-control me-2" placeholder="Cari barang..."
         value="{{ request('search') }}">
       <button type="submit" class="btn btn-primary">Cari</button>
     </form>
 
-    <!-- ➕ Tombol Tambah Barang -->
+    <!--Tombol Tambah Barang -->
     <a href="{{ route('tambahbarang.create') }}" class="btn btn-success">Tambah Barang Baru</a>
 
-    <!-- 🔽 Dropdown Sort -->
+    <!--Dropdown Sort -->
     <div class="dropdown ms-2">
       <button class="btn btn-info dropdown-toggle" type="button" id="sortDropdown" data-bs-toggle="dropdown"
         aria-expanded="false">
@@ -66,7 +66,7 @@
     </div>
   </div>
 
-  <!-- 📋 Tabel Barang -->
+  <!--Tabel Barang -->
   <div class="table-responsive">
     <table class="table table-hover align-middle">
       <thead class="table-dark text-left">
@@ -121,7 +121,7 @@
             <td>{{ $b->Deskripsi_Barang ?? '-' }}</td>
             <td>Rp. {{ number_format($b->Harga_Barang, 0, ',', '.') }},-</td>
 
-            <!-- 👁️ Harga Beli + Tombol Toggle per Baris -->
+            <!--Harga Beli + Tombol Toggle per Baris -->
             <td>
               <span class="harga-sensor" data-real="{{ $hargaBeli }}" data-sensor="{{ $hargaSensor }}">
                 {{ $hargaSensor }}
@@ -134,18 +134,18 @@
             <td>{{ $b->Stok_Barang }} {{ $b->satuanbarang->Nama_Satuan }}</td>
             <td>
               <div class="d-flex justify-content-center align-items-center gap-2 flex-wrap">
-                <!-- ➕ Tambah Stok -->
+                <!--Tambah Stok -->
                 <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal"
                   data-bs-target="#modalStok{{ $b->ID_Barang }}">
                   ➕ Tambah Stok
                 </button>
 
-                <!-- ✏️ Edit -->
+                <!--Edit -->
                 <a href="{{ route('barang.edit', $b->ID_Barang) }}" class="btn btn-warning btn-sm text-black">
                   ✏️ Edit
                 </a>
 
-                <!-- ❌ Hapus -->
+                <!--Hapus -->
                 <form action="{{ route('barang.destroy', $b->ID_Barang) }}" method="POST"
                   onsubmit="return confirm('Hapus {{ $b->Nama_Barang }}?')">
                   @csrf
@@ -190,7 +190,7 @@
     </table>
   </div>
 
-  <!-- 🔢 Pagination -->
+  <!--Pagination -->
   <div class="d-flex justify-content-center mt-4">
     {{ $barang->links('pagination::custom') }}
   </div>
@@ -210,7 +210,7 @@
           const sedangTersensor = (hargaSpan.textContent.trim() === sensor);
 
           if (sedangTersensor) {
-            // 🔓 Tampilkan harga asli
+            //Tampilkan harga asli
             hargaSpan.textContent = 'Rp. ' + parseInt(real).toLocaleString('id-ID') + ',-';
 
             // ganti icon → eye-slash
@@ -219,7 +219,7 @@
 
             this.title = "Sembunyikan harga asli";
           } else {
-            // 🔒 Sembunyikan harga
+            //Sembunyikan harga
             hargaSpan.textContent = sensor;
 
             // ganti icon → eye
