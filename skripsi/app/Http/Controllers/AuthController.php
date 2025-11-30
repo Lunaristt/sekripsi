@@ -62,7 +62,7 @@ class AuthController extends Controller
     }
 
     /**
-     * 🔹 Logout pengguna & hapus session
+     *Logout pengguna & hapus session
      */
     public function logout(Request $request)
     {

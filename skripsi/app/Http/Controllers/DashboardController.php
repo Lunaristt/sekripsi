@@ -49,7 +49,7 @@ class DashboardController extends Controller
     {
         $filter = $request->get('filter', 'bulan');
 
-        // 🟩 DATA PENJUALAN
+        //DATA PENJUALAN
         switch ($filter) {
             case 'bulan':
                 $penjualan = Penjualan::select(
