@@ -22,7 +22,10 @@
             <h5 class="fw-bold mb-3">
                 Periode: {{ \Carbon\Carbon::parse($bulan . '-01')->translatedFormat('F Y') }}
             </h5>
-
+            <a href="{{ route('laporan.pemasukan.pdf', ['bulan' => request('bulan')]) }}"
+                class="btn btn-danger mb-3 fw-semibold">
+                Download PDF
+            </a>
             <table class="table table-striped align-middle">
                 <thead class="table-dark text-start">
                     <tr>

@@ -24,6 +24,12 @@
                 Periode: {{ \Carbon\Carbon::parse($bulan . '-01')->translatedFormat('F Y') }}
             </h5>
 
+            <!-- 🔻 Tombol Download PDF -->
+            <a href="{{ route('laporan.pengeluaran.pdf', ['bulan' => request('bulan')]) }}"
+                class="btn btn-danger mb-3 fw-semibold">
+                Download PDF
+            </a>
+
             <table class="table table-striped align-middle">
                 <thead class="table-dark text-left">
                     <tr>
@@ -31,7 +37,6 @@
                         <th>Nama Distributor</th>
                         <th>Salesman</th>
                         <th>Total Pembelian (Rp)</th>
-
                     </tr>
                 </thead>
                 <tbody>

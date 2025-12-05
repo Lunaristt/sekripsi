@@ -166,5 +166,8 @@ Route::middleware(['authcheck'])->group(function () {
     Route::prefix('laporan')->name('laporan.')->group(function () {
         Route::get('/pengeluaran', [LaporanController::class, 'pengeluaran'])->name('pengeluaran');
         Route::get('/pemasukan', [LaporanController::class, 'pemasukan'])->name('pemasukan');
+        Route::get('/pdf/pemasukan', [LaporanController::class, 'exportPemasukanPDF'])->name('pemasukan.pdf');
+        Route::get('/pdf/pengeluaran', [LaporanController::class, 'exportPengeluaranPDF'])->name('pengeluaran.pdf');
     });
+
 });
