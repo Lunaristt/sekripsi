@@ -5,10 +5,10 @@
 @section('content')
     <h4 class="mb-4 fw-bold">Daftar Pelanggan</h4>
 
-    {{-- ✅ Tombol Tambah Pelanggan --}}
+    {{-- Tombol Tambah Pelanggan --}}
     <a href="{{ route('pelanggan.create') }}" class="btn btn-primary mb-3">➕ Tambah Pelanggan</a>
 
-    {{-- ✅ Tabel Pelanggan --}}
+    {{-- Tabel Pelanggan --}}
     <div class="table-responsive">
         <table class="table table-bordered table-hover align-middle">
             <thead class="table-dark">

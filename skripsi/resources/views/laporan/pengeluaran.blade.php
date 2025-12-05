@@ -5,7 +5,7 @@
 @section('content')
     <h4 class="fw-bold mb-4">📊 Laporan Pembelian Bulanan</h4>
 
-    <!-- 🔹 Filter Bulan -->
+    <!-- Filter Bulan -->
     <form method="GET" action="{{ route('laporan.pengeluaran') }}" class="row g-3 mb-4">
         <div class="col-md-3">
             <label for="bulan" class="form-label fw-semibold">Pilih Bulan</label>
@@ -17,7 +17,7 @@
         </div>
     </form>
 
-    <!-- 🔹 Tabel Laporan -->
+    <!-- Tabel Laporan -->
     @if(isset($pembelian) && count($pembelian) > 0)
         <div class="card shadow-sm p-3">
             <h5 class="fw-bold mb-3">

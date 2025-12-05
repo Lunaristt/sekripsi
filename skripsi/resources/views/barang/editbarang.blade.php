@@ -12,7 +12,7 @@
         </a>
     </div>
 
-    {{-- ✅ Form Edit Barang --}}
+    {{-- Form Edit Barang --}}
     <form action="{{ route('barang.update', $barang->ID_Barang) }}" method="POST">
         @csrf
         @method('PUT')
@@ -57,7 +57,7 @@
             </div>
         </div>
 
-        {{-- 🔹 Distributor & Harga Beli --}}
+        {{-- Distributor & Harga Beli --}}
         <div class="row">
             <div class="col-md-6 mb-3">
                 <label class="form-label">Distributor*</label>

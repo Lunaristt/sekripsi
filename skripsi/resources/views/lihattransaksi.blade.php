@@ -14,7 +14,7 @@
 @section('content')
     <h4 class="mb-4">Transaksi Pelanggan (ID: {{ $penjualan->ID_Penjualan }})</h4>
 
-    {{-- 🔹 Informasi Pelanggan --}}
+    {{-- Informasi Pelanggan --}}
     <div class="row mb-4">
         <div class="col-md-3">
             <h6 class="fw-bold">Nama Pelanggan</h6>
@@ -37,7 +37,7 @@
         </div>
     </div>
 
-    {{-- 🔹 Tabel Barang --}}
+    {{-- Tabel Barang --}}
     <table class="table table-bordered align-middle">
         <thead class="table-light">
             <tr>
@@ -69,7 +69,7 @@
         </tbody>
     </table>
 
-    {{-- 🔹 Total Keseluruhan --}}
+    {{-- Total Keseluruhan --}}
     <div class="d-flex justify-content-between align-items-center mt-4">
         <h5 class="fw-bold">Total Keseluruhan:</h5>
         <h5 class="fw-bold text-success">
@@ -77,7 +77,7 @@
         </h5>
     </div>
 
-    {{-- 🔹 Tombol Aksi --}}
+    {{-- Tombol Aksi --}}
     <div class="d-flex justify-content-end mt-3">
         <a href="{{ route('penjualan.index') }}" class="btn btn-secondary me-2">Kembali</a>
         <form action="{{ route('penjualan.print', $penjualan->ID_Penjualan) }}" method="GET" target="_blank">

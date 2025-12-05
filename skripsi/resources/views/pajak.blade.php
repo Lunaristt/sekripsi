@@ -6,17 +6,17 @@
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h4 class="fw-bold mb-0">Laporan Pajak</h4>
 
-        <!-- 🔄 Tombol Refresh -->
+        <!-- Tombol Refresh -->
         <a href="{{ route('pajak.index') }}" class="btn btn-primary ms-2">🔄 Refresh</a>
     </div>
 
-    <!-- ℹ️ Deskripsi -->
+    <!-- Deskripsi -->
     <div class="alert alert-info mb-4">
         <strong>Keterangan:</strong> PPh Final sebesar <b>0,5%</b> dikenakan apabila total omzet tahunan melebihi
         <b>Rp 500.000.000</b>.
     </div>
 
-    <!-- 📊 Tabel Pajak -->
+    <!-- Tabel Pajak -->
     <div class="table-responsive">
         <table class="table table-hover align-middle text-center">
             <thead class="table-dark">

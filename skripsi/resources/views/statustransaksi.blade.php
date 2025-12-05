@@ -5,7 +5,7 @@
 @section('content')
     <h4 class="mb-4 fw-bold">List Penjualan</h4>
 
-    {{-- ✅ Notifikasi sukses --}}
+    {{--Notifikasi sukses--}}
     @if(session('success'))
         <div class="alert alert-success alert-dismissible fade show" role="alert">
             {{ session('success') }}
@@ -13,7 +13,7 @@
         </div>
     @endif
 
-    {{-- ✅ Tabel Penjualan --}}
+    {{--Tabel Penjualan--}}
     <div class="table-responsive">
         <table class="table table-bordered table-hover align-middle">
             <thead class="table-dark">

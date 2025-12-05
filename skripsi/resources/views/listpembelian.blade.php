@@ -3,7 +3,7 @@
 @section('title', 'Status Pembelian - Toko Sumber Rejeki')
 
 @section('content')
-    <h4 class="fw-bold mb-4">📦 List Pembelian</h4>
+    <h4 class="fw-bold mb-4">List Pembelian</h4>
 
     <div class="table-responsive">
         <table class="table table-bordered table-hover align-middle">

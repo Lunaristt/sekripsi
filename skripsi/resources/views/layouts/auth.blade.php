@@ -65,7 +65,7 @@
 </head>
 
 <body>
-    <!-- ✅ Navbar sederhana -->
+    <!-- Navbar sederhana -->
     <nav class="navbar navbar-expand-lg px-3">
         <div class="container-fluid">
             <a class="navbar-brand" href="#">Toko Sumber Rejeki</a>
@@ -80,7 +80,7 @@
         </div>
     </nav>
 
-    <!-- ✅ Konten utama -->
+    <!-- Konten utama -->
     <main class="py-5">
         @yield('content')
     </main>

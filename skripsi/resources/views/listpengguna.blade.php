@@ -12,7 +12,7 @@
         </div>
     </div>
 
-    <!-- 🔍 Form Pencarian -->
+    <!-- Form Pencarian -->
     <form action="{{ route('pengguna.index') }}" method="GET" class="mb-3">
         <div class="input-group" style="max-width: 400px;">
             <input type="text" name="search" class="form-control" placeholder="Cari nama atau role..."
@@ -21,7 +21,7 @@
         </div>
     </form>
 
-    <!-- 📋 Tabel Pengguna -->
+    <!-- Tabel Pengguna -->
     <div class="table-responsive">
         <table class="table table-hover align-middle text-center">
             <thead class="table-dark">
@@ -41,7 +41,7 @@
                         <td>{{ $user->Nama }}</td>
                         <td>{{ $user->No_Telp ?? '-' }}</td>
                         <td>
-                            <!-- 🔽 Dropdown ubah role -->
+                            <!-- Dropdown ubah role -->
                             <form action="{{ route('pengguna.updateRole', $user->ID_Pengguna) }}" method="POST"
                                 class="d-inline">
                                 @csrf
@@ -61,7 +61,7 @@
                             @endif
                         </td>
                         <td>
-                            <!-- 🔘 Tombol Approve / Restrict -->
+                            <!-- Tombol Approve / Restrict -->
                             @if ($user->Status === 'restricted')
                                 <form action="{{ route('pengguna.approve', $user->ID_Pengguna) }}" method="POST" class="d-inline">
                                     @csrf
@@ -74,12 +74,12 @@
                                 </form>
                             @endif
 
-                            <!-- ✏️ Edit -->
+                            <!-- Edit -->
                             <a href="{{ route('pengguna.edit', $user->ID_Pengguna) }}" class="btn btn-outline-primary btn-sm">
                                 ✏️ Edit
                             </a>
 
-                            <!-- 🗑️ Hapus -->
+                            <!-- Hapus -->
                             <form action="{{ route('pengguna.destroy', $user->ID_Pengguna) }}" method="POST" class="d-inline"
                                 onsubmit="return confirm('Hapus pengguna ini?')">
                                 @csrf

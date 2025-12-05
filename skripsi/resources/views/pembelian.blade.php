@@ -23,7 +23,7 @@
 @section('content')
     <h4 class="mb-4">Pembelian Baru (ID: {{ $pembelian->ID_Pembelian }})</h4>
 
-    {{-- 🔹 Informasi Distributor --}}
+    {{--Informasi Distributor --}}
     <div class="row mb-4">
         <div class="col-md-4">
             <h6 class="fw-bold">Distributor</h6>
@@ -49,7 +49,7 @@
         </div>
     </div>
 
-    {{-- 🔹 Informasi Tanggal --}}
+    {{--Informasi Tanggal --}}
     <div class="row mb-4">
         <div class="col-md-6">
             <h6 class="fw-bold">Tanggal Pembelian</h6>
@@ -62,7 +62,7 @@
         </div>
     </div>
 
-    {{-- 🔹 Tabel Barang --}}
+    {{--Tabel Barang --}}
     <table class="table table-bordered align-middle">
         <thead class="table-light">
             <tr>
@@ -81,7 +81,7 @@
         </tbody>
     </table>
 
-    {{-- 🔹 Form Tambah Barang --}}
+    {{--Form Tambah Barang --}}
     <form id="formAddItem" action="{{ route('pembelian.addItem') }}" method="POST">
         @csrf
         <div class="mb-3">
@@ -121,7 +121,7 @@
         <h6 id="grandTotal" class="fw-bold">Total: Rp 0</h6>
     </div>
 
-    {{-- 🔹 Tombol --}}
+    {{--Tombol --}}
     <div class="d-flex justify-content-end mt-3">
         <form action="{{ route('pembelian.cancel') }}" method="POST" class="me-2">
             @csrf
@@ -192,7 +192,7 @@
                 $('#ID_Barang').html('<option value="">-- Memuat data barang... --</option>');
                 initSelect2Barang();
 
-                // 🔵 Ambil barang distributor via AJAX
+                // Ambil barang distributor via AJAX
                 if (distributorId) {
                     $.get(`/pembelian/barang-by-distributor/${distributorId}`, function (data) {
 
@@ -201,9 +201,9 @@
                         if (data.length > 0) {
                             data.forEach(function (b) {
                                 options += `
-                                                        <option value="${b.ID_Barang}">
-                                                            ${b.Nama_Barang} - ${b.Deskripsi_Barang ?? ''}
-                                                        </option>`;
+                                                            <option value="${b.ID_Barang}">
+                                                                ${b.Nama_Barang} - ${b.Deskripsi_Barang ?? ''}
+                                                            </option>`;
                             });
                         } else {
                             options = '<option value="">Distributor ini belum memiliki barang.</option>';
@@ -212,7 +212,7 @@
                         // Update dropdown
                         $('#ID_Barang').html(options);
 
-                        // 🔥 Re-init Select2 setelah isi dropdown diupdate
+                        // Re-init Select2 setelah isi dropdown diupdate
                         initSelect2Barang();
 
                     }).fail(function () {
@@ -225,7 +225,7 @@
                 }
             });
 
-            // 🟢 Autofill Harga Beli
+            // Autofill Harga Beli
             $('#ID_Barang').on('change', function () {
                 const barangId = $(this).val();
                 const distributorId = $('#namaDistributor').val();
@@ -254,7 +254,7 @@
                 }
             });
 
-            // 🟢 Tambah Barang ke Tabel & Array
+            // Tambah Barang ke Tabel & Array
             const form = $('#formAddItem');
             const listBarang = $('#listBarang');
             const grandTotal = $('#grandTotal');
@@ -293,19 +293,19 @@
                 $('#emptyRow').remove();
 
                 const row = $(`
-                                        <tr class="align-middle text-center">
-                                            <td class="text-start fw-semibold">${namaBarang}</td>
-                                            <td>${deskripsi}</td>
-                                            <td>${jumlah}</td>
-                                            <td class="text-end">Rp ${hargaBeli.toLocaleString()}</td>
-                                            <td class="text-end fw-bold">Rp ${totalHarga.toLocaleString()}</td>
-                                            <td>
-                                                <button type="button" class="btn btn-sm btn-danger btnHapus">
-                                                    <i class="bi bi-trash"></i> Hapus
-                                                </button>
-                                            </td>
-                                        </tr>
-                                    `);
+                                            <tr class="align-middle text-center">
+                                                <td class="text-start fw-semibold">${namaBarang}</td>
+                                                <td>${deskripsi}</td>
+                                                <td>${jumlah}</td>
+                                                <td class="text-end">Rp ${hargaBeli.toLocaleString()}</td>
+                                                <td class="text-end fw-bold">Rp ${totalHarga.toLocaleString()}</td>
+                                                <td>
+                                                    <button type="button" class="btn btn-sm btn-danger btnHapus">
+                                                        <i class="bi bi-trash"></i> Hapus
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        `);
 
                 listBarang.append(row);
                 grandTotal.text(`Total: Rp ${totalKeseluruhan.toLocaleString()}`);
@@ -325,16 +325,16 @@
 
                     if (listBarang.children('tr').length === 0) {
                         listBarang.html(`
-                                                <tr id="emptyRow">
-                                                    <td colspan="6" class="text-center text-muted py-3">
-                                                        Belum ada barang dalam pembelian
-                                                    </td>
-                                                </tr>
-                                            `);
+                                                    <tr id="emptyRow">
+                                                        <td colspan="6" class="text-center text-muted py-3">
+                                                            Belum ada barang dalam pembelian
+                                                        </td>
+                                                    </tr>
+                                                `);
                     }
                 });
             });
-            // 🟢 Checkout
+            // Checkout
             $('#checkoutForm').on('submit', function (e) {
                 e.preventDefault();
 

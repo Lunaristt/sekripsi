@@ -5,9 +5,9 @@
 @section('content')
     <div class="p-4">
 
-        <h5 class="fw-bold mb-3">📢 Informasi Terbaru:</h5>
+        <h5 class="fw-bold mb-3">Informasi Terbaru:</h5>
 
-        {{-- ⏰ Peringatan Jatuh Tempo Pembelian --}}
+        {{-- Peringatan Jatuh Tempo Pembelian --}}
         @forelse ($jatuhTempo as $p)
             <div class="alert alert-danger mb-2 d-flex justify-content-between align-items-center">
                 <div>
@@ -26,7 +26,7 @@
             </div>
         @endforelse
 
-        {{-- 📊 Rekap Transaksi Kemarin --}}
+        {{-- Rekap Transaksi Kemarin --}}
         <div class="card shadow-sm mt-4">
             <div class="card-body">
                 <h5 class="fw-bold mb-3 text-center">
@@ -61,14 +61,14 @@
             </div>
         </div>
 
-        {{-- 🛒 Tombol Buat Pesanan --}}
+        {{-- Tombol Buat Pesanan --}}
         <div class="mt-3 mb-3 text-center">
             <a href="{{ route('transaksi.create') }}" class="btn btn-order btn-primary px-4 py-2 fw-bold">
                 🛒 Buat Pesanan Baru
             </a>
         </div>
 
-        {{-- ⚠️ Peringatan Stok Menipis --}}
+        {{-- Peringatan Stok Menipis --}}
         @forelse ($barangMenipis as $b)
             @php
                 // Siapkan daftar info tambahan (bisa berisi satu atau dua data)

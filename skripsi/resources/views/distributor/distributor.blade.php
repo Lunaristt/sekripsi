@@ -10,12 +10,12 @@
         </button>
     </div>
 
-    {{-- 🔔 Notifikasi --}}
+    {{-- Notifikasi --}}
     @if(session('success'))
         <div class="alert alert-success text-center">{{ session('success') }}</div>
     @endif
 
-    <!-- ✅ Mode Input Manual -->
+    <!-- Mode Input Manual -->
     <div id="manualForm">
         <div class="table-responsive">
             <table class="table table-bordered table-hover align-middle">
@@ -64,7 +64,7 @@
         <a href="{{ route('distributor.create') }}" class="btn btn-primary mt-3">➕ Tambah Distributor</a>
     </div>
 
-    <!-- ✅ Mode Upload Excel -->
+    <!-- Mode Upload Excel -->
     <div id="excelForm" class="d-none mt-4">
         <form action="{{ route('distributor.import') }}" method="POST" enctype="multipart/form-data">
             @csrf

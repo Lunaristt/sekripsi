@@ -5,7 +5,7 @@
 @section('content')
     <h4 class="fw-bold mb-4">💰 Laporan Penjualan Bulanan</h4>
 
-    <!-- 🔹 Filter Bulan -->
+    <!-- Filter Bulan -->
     <form method="GET" action="{{ route('laporan.pemasukan') }}" class="row g-3 mb-4">
         <div class="col-md-3">
             <label for="bulan" class="form-label fw-semibold">Pilih Bulan</label>

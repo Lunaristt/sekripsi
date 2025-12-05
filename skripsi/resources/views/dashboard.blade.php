@@ -16,11 +16,11 @@
 @endpush
 
 @section('content')
-  <!-- 🧾 Judul -->
+  <!-- Judul -->
   <div class="d-flex justify-content-between align-items-center mb-3 border-bottom pb-2">
     <h2 class="h4">📊 Dashboard Omzet & Pembelian</h2>
 
-    <!-- 🔽 Dropdown Filter -->
+    <!-- Dropdown Filter -->
     <select id="filterSelect" class="form-select w-auto">
       <option value="tahun">Per Tahun</option>
       <option value="bulan" selected>Per Bulan</option>
@@ -29,10 +29,10 @@
     </select>
   </div>
 
-  <!-- 🔹 Statistik Ringkasan -->
+  <!-- Statistik Ringkasan -->
   <div class="row mb-4">
 
-    <!-- 📦 Produk -->
+    <!-- Produk -->
     <div class="col-md-2">
       <div class="card text-center shadow-sm stat-card">
         <div class="card-body">
@@ -43,7 +43,7 @@
       </div>
     </div>
 
-    <!-- 👥 Pelanggan -->
+    <!-- Pelanggan -->
     <div class="col-md-2">
       <div class="card text-center shadow-sm stat-card">
         <div class="card-body">
@@ -54,7 +54,7 @@
       </div>
     </div>
 
-    <!-- 🚚 Distributor -->
+    <!-- Distributor -->
     <div class="col-md-2">
       <div class="card text-center shadow-sm stat-card">
         <div class="card-body">
@@ -65,7 +65,7 @@
       </div>
     </div>
 
-    <!-- 💰 Pendapatan Hari Ini -->
+    <!-- Pendapatan Hari Ini -->
     <div class="col">
       <div class="card text-center shadow-sm stat-card">
         <div class="card-body">
@@ -77,7 +77,7 @@
     </div>
   </div>
 
-  <!-- 📊 Grafik -->
+  <!-- Grafik -->
   <div class="row">
     <!-- 📈 Grafik Penjualan -->
     <div class="col-md-6">
@@ -89,7 +89,7 @@
       </div>
     </div>
 
-    <!-- 📉 Grafik Pembelian -->
+    <!-- Grafik Pembelian -->
     <div class="col-md-6">
       <div class="card shadow-sm mb-4">
         <div class="card-body">
@@ -118,7 +118,7 @@
           if (chartPenjualan) chartPenjualan.destroy();
           if (chartPembelian) chartPembelian.destroy();
 
-          // 🔹 Chart Penjualan
+          // Chart Penjualan
           chartPenjualan = new Chart(ctxPenjualan, {
             type: (filter === 'tahun' || filter === 'bulan') ? 'bar' : 'line',
             data: {
@@ -152,7 +152,7 @@
             }
           });
 
-          // 🔹 Chart Pembelian
+          // Chart Pembelian
           chartPembelian = new Chart(ctxPembelian, {
             type: (filter === 'tahun' || filter === 'bulan') ? 'bar' : 'line',
             data: {

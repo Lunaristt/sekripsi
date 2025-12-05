@@ -15,7 +15,7 @@
     <div class="container-fluid">
         <div class="row">
             @include('layouts.sidebar')
-            <!-- Content -->
+            <!--Content-->
             <div class="col-md-10 p-4">
                 <table class="table align-middle">
                     <thead>

@@ -5,7 +5,7 @@
 @section('content')
     <h4 class="fw-bold mb-4">Edit Pelanggan</h4>
 
-    {{-- ✅ Form Edit Pelanggan --}}
+    {{-- Form Edit Pelanggan --}}
     <form action="{{ route('pelanggan.update', $pelanggan->No_Telp) }}" method="POST">
         @csrf
         @method('PUT')

@@ -124,7 +124,7 @@
 
 @push('scripts')
   <script>
-    // ✅ Toggle show/hide password
+    //Toggle show/hide password
     document.addEventListener("DOMContentLoaded", () => {
       const pwInput = document.getElementById('password');
       const toggleBtn = document.getElementById('togglePassword');
@@ -137,7 +137,7 @@
         pwInput.type = isPassword ? 'text' : 'password';
         toggleBtn.title = isPassword ? 'Sembunyikan password' : 'Tampilkan password';
 
-        // Ganti ikon
+        //Ganti ikon
         eye.style.display = isPassword ? 'none' : 'block';
         eyeSlash.style.display = isPassword ? 'block' : 'none';
       });

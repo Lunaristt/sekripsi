@@ -14,7 +14,7 @@
 @section('content')
     <h4 class="mb-4">Detail Pembelian (ID: {{ $pembelian->ID_Pembelian }})</h4>
 
-    {{-- 🔹 Informasi Distributor --}}
+    {{-- Informasi Distributor --}}
     <div class="row mb-4">
         <div class="col-md-3">
             <h6 class="fw-bold">Nama Distributor</h6>
@@ -37,7 +37,7 @@
         </div>
     </div>
 
-    {{-- 🔹 Tabel Barang --}}
+    {{-- Tabel Barang --}}
     <table class="table table-bordered align-middle">
         <thead class="table-light">
             <tr>
@@ -75,7 +75,7 @@
         </tbody>
     </table>
 
-    {{-- 🔹 Total Pembelian --}}
+    {{-- Total Pembelian --}}
     <div class="d-flex justify-content-between align-items-center mt-4">
         <h5 class="fw-bold">Total Pembelian:</h5>
         <h5 class="fw-bold text-primary">
@@ -83,7 +83,7 @@
         </h5>
     </div>
 
-    {{-- 🔹 Tombol Aksi --}}
+    {{-- Tombol Aksi --}}
     <div class="d-flex justify-content-end mt-3">
         <a href="{{ route('pembelian.index') }}" class="btn btn-secondary me-2">Kembali</a>
     </div>

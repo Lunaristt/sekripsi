@@ -12,7 +12,7 @@
         </button>
     </div>
 
-    <!-- ✅ Form Input Manual -->
+    <!-- Form Input Manual -->
     <div id="manualForm">
         <form action="{{ route('tambahbarang.store') }}" method="POST">
             @csrf
@@ -100,7 +100,7 @@
         </form>
     </div>
 
-    <!-- ✅ Form Upload Excel -->
+    <!-- Form Upload Excel -->
     <div id="excelForm" class="d-none">
         <form action="{{ route('barang.import') }}" method="POST" enctype="multipart/form-data">
             @csrf
