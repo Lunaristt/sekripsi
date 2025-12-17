@@ -99,8 +99,13 @@ Route::middleware(['authcheck'])->group(function () {
     });
 
     //Master Tambahan (Views)
-    Route::get('tambahkategori', fn() => view('tambahmasterdata/tambahkategori'))->name('tambahkategori');
-    Route::get('/tambahsatuan', fn() => view('tambahmasterdata/tambahsatuan'))->name('tambahsatuan');
+    // Master Data (Kategori & Satuan)
+    Route::get('/tambahkategori', [BarangController::class, 'viewKategori'])
+        ->name('tambahkategori');
+
+    Route::get('/tambahsatuan', [BarangController::class, 'viewSatuan'])
+        ->name('tambahsatuan');
+
     Route::get('/tambahdistributor', fn() => view('distributor/tambahdistributor'))->name('tambahdistributor');
     Route::get('/home', [HomeController::class, 'index'])->name('home');
 

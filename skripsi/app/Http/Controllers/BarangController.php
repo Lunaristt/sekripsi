@@ -18,7 +18,12 @@ class BarangController extends Controller
      */
     public function index(Request $request)
     {
-        $query = Barang::with(['satuanbarang', 'distributor']);
+        $query = Barang::with([
+            'kategoribarang',
+            'satuanbarang',
+            'distributor'
+        ]);
+
 
         //Fitur Search
         if ($request->has('search') && !empty($request->search)) {
@@ -231,4 +236,20 @@ class BarangController extends Controller
 
         return redirect()->back()->with('success', 'Satuan baru berhasil ditambahkan!');
     }
+    // TAMPILKAN HALAMAN TAMBAH KATEGORI + DATA KATEGORI
+    public function viewKategori()
+    {
+        $kategoriBarang = KategoriBarang::orderBy('Kategori_Barang', 'asc')->get();
+
+        return view('tambahmasterdata.tambahkategori', compact('kategoriBarang'));
+    }
+
+    // TAMPILKAN HALAMAN TAMBAH SATUAN + DATA SATUAN
+    public function viewSatuan()
+    {
+        $satuanBarang = SatuanBarang::orderBy('Nama_Satuan', 'asc')->get();
+
+        return view('tambahmasterdata.tambahsatuan', compact('satuanBarang'));
+    }
+
 }
